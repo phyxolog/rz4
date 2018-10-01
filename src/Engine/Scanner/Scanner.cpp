@@ -17,20 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef RZ4M_UTILS_H
-#define RZ4M_UTILS_H
-
-#include <iostream>
-#include <cstring>
-#include <map>
-#include <algorithm>
+#include "Scanner.h"
 
 namespace rz4m {
-    namespace Utils {
-        int CharMatch(const char *buffer, unsigned int buffer_size, char needle, unsigned int offset);
-        long long MemToll(std::string str);
+    namespace Engine {
+
     }
 }
-
-
-#endif //RZ4M_UTILS_H

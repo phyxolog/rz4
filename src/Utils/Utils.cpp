@@ -35,5 +35,50 @@ namespace rz4m {
             const char* result = reinterpret_cast<const char*>(std::memchr(buffer + offset, needle, buffer_size));
             return result ? static_cast<int>(result - buffer) : -1;
         }
+
+        /*
+         * Convert a string representing an amount of memory into the number of
+         * bytes, so for instance memtoll("1Gb") will return 1073741824 that is
+         * (1024*1024*1024).
+         */
+        long long MemToll(std::string str) {
+            if (str.length() == 0) {
+                return 0;
+            }
+
+            size_t nondigit_pos = str.find_first_not_of("0123456789");
+
+            if (nondigit_pos == std::string::npos) {
+                return std::stoll(str);
+            }
+
+            long long result = 0;
+            std::string digits = str.substr(0, nondigit_pos);
+            std::string u = str.substr(nondigit_pos, str.length());
+            std::transform(u.begin(), u.end(), u.begin(), ::tolower);
+
+            if (digits.length() == 0) {
+                return result;
+            } else {
+                result = std::stoll(digits);
+            }
+
+            std::map<std::string, long> umul = {
+                    { "b",  1                   },
+                    { "k",  1000                },
+                    { "kb", 1024                },
+                    { "m",  1000  * 1000        },
+                    { "mb", 1024  * 1024        },
+                    { "g",  1000L * 1000 * 1000 },
+                    { "gb", 1024L * 1024 * 1024 },
+            };
+
+            auto mul = umul.find(u);
+            if (mul != umul.end()) {
+                return result * mul->second;
+            } else {
+                return result;
+            }
+        }
     }
 }

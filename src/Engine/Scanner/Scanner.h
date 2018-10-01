@@ -17,20 +17,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef RZ4M_UTILS_H
-#define RZ4M_UTILS_H
+#ifndef RZ4M_SCANNER_H
+#define RZ4M_SCANNER_H
 
-#include <iostream>
-#include <cstring>
-#include <map>
-#include <algorithm>
+#include <string>
+#include <ifstream>
+#include <list>
+
+#include "Types/Types.h"
 
 namespace rz4m {
-    namespace Utils {
-        int CharMatch(const char *buffer, unsigned int buffer_size, char needle, unsigned int offset);
-        long long MemToll(std::string str);
+    namespace Engine {
+        class Scanner {
+        private:
+            std::ifstream File;
+            std::string FileName;
+            unsigned int BufferSize;
+            uintmax_t FileSize;
+            uintmax_t TotalSize;
+            std::list<rz4m::Types::StreamInfo> StreamList;
+        };
     }
 }
 
 
-#endif //RZ4M_UTILS_H
+#endif //RZ4M_SCANNER_H

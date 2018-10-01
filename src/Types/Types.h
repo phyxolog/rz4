@@ -21,9 +21,12 @@
 #define RZ4M_TYPES_H
 
 #include <string>
+#include <experimental/filesystem>
 
 namespace rz4m {
     namespace Types {
+        namespace fs = std::experimental::filesystem;
+
         typedef struct StreamInfo {
             std::string FileType;
             std::string Ext;
@@ -32,6 +35,15 @@ namespace rz4m {
             uintmax_t Offset;
             void *data;
         } StreamInfo;
+
+        typedef struct CLIOptions {
+            fs::path OutDir;
+            std::string Command;
+            std::string InFile;
+            std::string OutFile;
+            unsigned int BufferSize;
+            bool EnableWav;
+        } CLIOptions;
     }
 }
 
