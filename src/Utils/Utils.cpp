@@ -26,14 +26,14 @@ namespace rz4m {
          * If found - return index.
          * If not - return -1.
          */
-        int CharMatch(const char *buffer, unsigned int buffer_size, char needle, unsigned int offset) {
-            if (offset >= buffer_size) {
+        int CharMatch(const char *Buffer, unsigned int BufferSize, char Needle, unsigned int Offset) {
+            if (Offset >= BufferSize) {
                 return -1;
             }
 
-            buffer_size -= offset;
-            const char* result = reinterpret_cast<const char*>(std::memchr(buffer + offset, needle, buffer_size));
-            return result ? static_cast<int>(result - buffer) : -1;
+            BufferSize -= Offset;
+            const char* result = reinterpret_cast<const char*>(std::memchr(Buffer + Offset, Needle, BufferSize));
+            return result ? static_cast<int>(result - Buffer) : -1;
         }
 
         /*
@@ -79,6 +79,17 @@ namespace rz4m {
             } else {
                 return result;
             }
+        }
+
+        std::string HumanizeSize(uintmax_t Bytes) {
+            if (Bytes == 0) return "0 B";
+            int exp = (int)(log(Bytes) / log(1024));
+            std::string prefix = std::string("BKMGTPE").substr(exp, 1) + (exp == 0 ? "" : "b");
+            return boost::str(boost::format("%.2f %s") % (Bytes / pow(1024, exp)) % prefix);
+        }
+
+        std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix) {
+            return std::string(FirstPrefix + "_" + SecondPrefix + "_" + std::to_string(std::chrono::seconds(std::time(NULL)).count()));
         }
     }
 }

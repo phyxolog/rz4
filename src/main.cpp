@@ -21,17 +21,23 @@
 
 #include "main.hpp"
 
+namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
-int Usage() {
-    std::cout
-        << rz4m::logo
-        << rz4m::usage_message
-        << std::endl;
+void PrintLogo(bool withEndl = false) {
+    std::cout << rz4m::logo;
+    if (withEndl) {
+        std::cout << std::endl;
+    }
+}
+
+int PrintUsage() {
+    PrintLogo();
+    std::cout << rz4m::usage_message << std::endl;
     return 0;
 }
 
-short int ParseArgs(rz4m::Types::CLIOptions &options, int argc, char *argv[]) {
+int ParseArgs(rz4m::Types::CLIOptions &options, int argc, char *argv[]) {
     po::options_description desc("");
     desc.add_options()
             ("help,h", "Show help")
@@ -71,8 +77,52 @@ short int ParseArgs(rz4m::Types::CLIOptions &options, int argc, char *argv[]) {
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
-        return Usage();
+        return PrintUsage();
     }
+
+    // Get current path
+    const fs::path CurrentPath = fs::current_path();
+
+    // `command` always the first argument
+    std::string command = argv[1];
+    std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+
+    // Init options
+    rz4m::Types::CLIOptions CLIOptions;
+    CLIOptions.Command = command;
+    CLIOptions.BufferSize = BUFFER_SIZE;
+    CLIOptions.EnableWav = true;
+
+    // Input file always the last argument
+    CLIOptions.InFile = argv[argc - 1];
+
+    if (ParseArgs(CLIOptions, argc, argv) == 1) {
+        return PrintUsage();
+    }
+
+    // Prints logo with endl
+    PrintLogo(true);
+
+    if (CLIOptions.BufferSize <= 0) {
+        CLIOptions.BufferSize = BUFFER_SIZE;
+    }
+
+    if (CLIOptions.InFile.empty() || !fs::exists(CLIOptions.InFile)) {
+        std::cout << "[!] No such input file!" << std::endl;
+        return 1;
+    }
+
+    if (CLIOptions.Command == COMMAND_EXTRACT
+        && CLIOptions.OutDir.empty()) {
+        CLIOptions.OutDir = CurrentPath / rz4m::Utils::GenerateUniqueFolderName(CLIOptions.InFile, "extract_data");
+    }
+
+    if (CLIOptions.Command == COMMAND_EXTRACT
+        && !fs::exists(CLIOptions.OutDir)) {
+        fs::create_directory(CLIOptions.OutDir);
+    }
+
+    std::cout << "-> Buffer size: " << rz4m::Utils::HumanizeSize(CLIOptions.BufferSize) << std::endl;
 
     return 0;
 }

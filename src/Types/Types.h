@@ -21,11 +21,11 @@
 #define RZ4M_TYPES_H
 
 #include <string>
-#include <experimental/filesystem>
+#include <boost/filesystem.hpp>
 
 namespace rz4m {
     namespace Types {
-        namespace fs = std::experimental::filesystem;
+        namespace fs = boost::filesystem;
 
         typedef struct StreamInfo {
             std::string FileType;
@@ -46,7 +46,5 @@ namespace rz4m {
         } CLIOptions;
     }
 }
-
-
 
 #endif //RZ4M_TYPES_H

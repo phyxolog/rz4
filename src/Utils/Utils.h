@@ -24,11 +24,16 @@
 #include <cstring>
 #include <map>
 #include <algorithm>
+#include <cmath>
+#include <chrono>
+#include <boost/format.hpp>
 
 namespace rz4m {
     namespace Utils {
-        int CharMatch(const char *buffer, unsigned int buffer_size, char needle, unsigned int offset);
+        int CharMatch(const char *Buffer, unsigned int BufferSize, char Needle, unsigned int Offset);
         long long MemToll(std::string str);
+        std::string HumanizeSize(uintmax_t Bytes);
+        std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix);
     }
 }
 

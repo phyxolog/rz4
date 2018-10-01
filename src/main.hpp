@@ -20,10 +20,16 @@
 #ifndef RZ4M_RZ4M_H
 #define RZ4M_RZ4M_H
 
+#include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
 #include "Utils/Utils.h"
 #include "Types/Types.h"
+
+#define BUFFER_SIZE       262144
+#define COMMAND_SCAN      "s"
+#define COMMAND_COMPRESS  "c"
+#define COMMAND_EXTRACT   "e"
 
 namespace rz4m {
     static const std::string logo =

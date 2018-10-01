@@ -1,6 +1,6 @@
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
+find_package(Boost 1.40 COMPONENTS program_options filesystem REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 link_libraries(stdc++fs)
