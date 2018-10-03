@@ -13,6 +13,7 @@ add_executable(
         rz4m
         main.cpp
         Utils/Utils.cpp
+        Types/Types.cpp
         Engine/Scanner/Scanner.cpp
         Engine/Ejector/Ejector.cpp
         ${PROJECT_SOURCES}
