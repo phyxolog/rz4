@@ -86,8 +86,8 @@ namespace rz4m {
          */
         std::string HumanizeSize(uintmax_t Bytes) {
             if (Bytes == 0) return "0 B";
-            int exp = (int)(log(Bytes) / log(1024));
-            std::string prefix = std::string("BKMGTPE").substr(exp, 1) + (exp == 0 ? "" : "b");
+            int exp = static_cast<int>(log(Bytes) / log(1024));
+            std::string prefix = std::string("BKMGTPE").substr(static_cast<unsigned long>(exp), 1) + (exp == 0 ? "" : "b");
             return boost::str(boost::format("%.2f %s") % (Bytes / pow(1024, exp)) % prefix);
         }
 
@@ -95,7 +95,7 @@ namespace rz4m {
          * Generate unique folder name with prefixes and timestamp.
          */
         std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix) {
-            return std::string(FirstPrefix + "_" + SecondPrefix + "_" + std::to_string(std::chrono::seconds(std::time(NULL)).count()));
+            return std::string(FirstPrefix + "_" + SecondPrefix + "_" + std::to_string(std::chrono::seconds(std::time(nullptr)).count()));
         }
     }
 }
