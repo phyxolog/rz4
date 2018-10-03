@@ -84,12 +84,12 @@ int main(int argc, char* argv[]) {
     const fs::path CurrentPath = fs::current_path();
 
     // `command` always the first argument
-    std::string command = argv[1];
-    std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+    std::string Command = argv[1];
+    std::transform(Command.begin(), Command.end(), Command.begin(), ::tolower);
 
     // Init options
     rz4m::Types::CLIOptions CLIOptions;
-    CLIOptions.Command = command;
+    CLIOptions.Command = Command;
     CLIOptions.BufferSize = BUFFER_SIZE;
     CLIOptions.EnableWav = true;
 

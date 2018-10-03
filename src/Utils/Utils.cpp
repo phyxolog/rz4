@@ -81,6 +81,9 @@ namespace rz4m {
             }
         }
 
+        /*
+         * A simple method to get a human readable file size string from a number (bytes).
+         */
         std::string HumanizeSize(uintmax_t Bytes) {
             if (Bytes == 0) return "0 B";
             int exp = (int)(log(Bytes) / log(1024));
@@ -88,6 +91,9 @@ namespace rz4m {
             return boost::str(boost::format("%.2f %s") % (Bytes / pow(1024, exp)) % prefix);
         }
 
+        /*
+         * Generate unique folder name with prefixes and timestamp.
+         */
         std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix) {
             return std::string(FirstPrefix + "_" + SecondPrefix + "_" + std::to_string(std::chrono::seconds(std::time(NULL)).count()));
         }

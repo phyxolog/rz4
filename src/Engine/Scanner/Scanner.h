@@ -20,14 +20,18 @@
 #ifndef RZ4M_SCANNER_H
 #define RZ4M_SCANNER_H
 
+#include <iostream>
 #include <string>
-#include <ifstream>
 #include <list>
+#include <fstream>
+#include <boost/filesystem.hpp>
 
-#include "Types/Types.h"
+#include <Types/Types.h>
 
 namespace rz4m {
     namespace Engine {
+        namespace fs = boost::filesystem;
+
         class Scanner {
         private:
             std::ifstream File;
@@ -35,7 +39,17 @@ namespace rz4m {
             unsigned int BufferSize;
             uintmax_t FileSize;
             uintmax_t TotalSize;
-            std::list<rz4m::Types::StreamInfo> StreamList;
+            std::list<Types::StreamInfo> *StreamList;
+
+        public:
+            Scanner();
+            ~Scanner();
+
+            bool Start();
+            bool Stop();
+            std::list<Types::StreamInfo> *GetListOfFoundStreams();
+            unsigned long GetCountOfFoundStreams();
+            uintmax_t GetSizeOfFoundStreams();
         };
     }
 }
