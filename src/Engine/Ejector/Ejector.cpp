@@ -69,14 +69,10 @@ namespace rz4m {
             return true;
         }
 
-        void Ejector::Close() {
+        Ejector::~Ejector() {
             if (File.is_open()) {
                 File.close();
             }
-        }
-
-        Ejector::~Ejector() {
-            File.close();
         }
     }
 }

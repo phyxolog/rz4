@@ -24,7 +24,7 @@
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
-void PrintLogo(bool withEndl = false) {
+void PrintLogo(bool withEndl = true) {
     std::cout << rz4m::logo;
     if (withEndl) {
         std::cout << std::endl;
@@ -32,7 +32,7 @@ void PrintLogo(bool withEndl = false) {
 }
 
 int PrintUsage() {
-    PrintLogo();
+    PrintLogo(false);
     std::cout << rz4m::usage_message << std::endl;
     return 0;
 }
@@ -47,9 +47,11 @@ int ParseArgs(rz4m::Types::CLIOptions &options, int argc, char *argv[]) {
             ("bufsize,b", po::value<std::string>());
 
     po::variables_map vm;
-    po::parsed_options parsed = po::command_line_parser(argc, argv).options(desc).allow_unregistered().run();
+    po::parsed_options parsed = po::command_line_parser(argc, argv)
+            .options(desc)
+            .allow_unregistered()
+            .run();
     po::store(parsed, vm);
-    po::notify(vm);
 
     if (vm.count("out")) {
         options.OutFile = vm["out"].as<std::string>();
@@ -100,15 +102,20 @@ int main(int argc, char* argv[]) {
         return PrintUsage();
     }
 
-    // Prints logo with endl
-    PrintLogo(true);
+    PrintLogo();
 
     if (CLIOptions.BufferSize <= 0) {
         CLIOptions.BufferSize = BUFFER_SIZE;
     }
 
-    if (CLIOptions.InFile.empty() || !fs::exists(CLIOptions.InFile)) {
+    if (CLIOptions.InFile.empty()
+        || !fs::exists(CLIOptions.InFile)) {
         std::cout << "[!] No such input file!" << std::endl;
+        return 1;
+    }
+
+    if (fs::file_size(CLIOptions.InFile) == 0) {
+        std::cout << "[!] Input file was empty {fs::file_size == 0}!" << std::endl;
         return 1;
     }
 

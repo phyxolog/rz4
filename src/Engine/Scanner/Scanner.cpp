@@ -32,6 +32,9 @@ namespace rz4m {
 
         Scanner::~Scanner() {
             StreamList->clear();
+            if (File.is_open()) {
+                File.close();
+            }
         }
 
         bool Scanner::Start() {}

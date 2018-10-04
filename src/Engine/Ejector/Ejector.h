@@ -38,7 +38,6 @@ namespace rz4m {
             ~Ejector();
 
             bool Extract(uintmax_t Offset, uintmax_t Size, std::string OutFileName);
-            void Close();
         };
     }
 }
