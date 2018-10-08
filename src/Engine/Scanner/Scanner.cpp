@@ -21,27 +21,29 @@
 
 namespace rz4m {
     namespace Engine {
-        Scanner::Scanner() {
-            // TODO: Add options to constructor
-            // TODO: Open file
-            // TODO: Check buffer size
-            FileSize = fs::file_size(FileName);
+        Scanner::Scanner(rz4m::Types::ScannerOptions Options) {
+            FileSize = fs::file_size(Options.FileName);
+            File.open(Options.FileName.c_str(), std::fstream::binary);
+            BufferSize = Options.BufferSize;
             TotalSize = 0;
-            StreamList = new std::list<Types::StreamInfo>;
+
+            if (FileSize < Options.BufferSize) {
+                BufferSize = static_cast<unsigned int>(FileSize);
+            }
         }
 
         Scanner::~Scanner() {
-            StreamList->clear();
+            StreamList.clear();
             if (File.is_open()) {
                 File.close();
             }
         }
 
-        bool Scanner::Start() {}
+        bool Scanner::Start(Types::ScannerCallbackHandle &Callback) {}
         bool Scanner::Stop() {}
 
         std::list<Types::StreamInfo> *Scanner::GetListOfFoundStreams() {
-            return StreamList;
+            return &StreamList;
         }
 
         uintmax_t Scanner::GetSizeOfFoundStreams() {
@@ -49,7 +51,7 @@ namespace rz4m {
         }
 
         unsigned long Scanner::GetCountOfFoundStreams() {
-            return StreamList->size();
+            return StreamList.size();
         }
     }
 }

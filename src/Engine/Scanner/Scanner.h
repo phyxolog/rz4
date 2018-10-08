@@ -35,17 +35,16 @@ namespace rz4m {
         class Scanner {
         private:
             std::ifstream File;
-            std::string FileName;
             unsigned int BufferSize;
             uintmax_t FileSize;
             uintmax_t TotalSize;
-            std::list<Types::StreamInfo> *StreamList;
+            std::list<Types::StreamInfo> StreamList;
 
         public:
-            Scanner();
+            explicit Scanner(rz4m::Types::ScannerOptions);
             ~Scanner();
 
-            bool Start();
+            bool Start(Types::ScannerCallbackHandle& = nullptr);
             bool Stop();
             std::list<Types::StreamInfo> *GetListOfFoundStreams();
             unsigned long GetCountOfFoundStreams();

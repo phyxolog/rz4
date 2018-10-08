@@ -23,6 +23,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
+#include "Engine/Scanner/Scanner.h"
 #include "Utils/Utils.h"
 #include "Types/Types.h"
 

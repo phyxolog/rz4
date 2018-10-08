@@ -39,11 +39,19 @@ namespace rz4m {
         typedef struct CLIOptions {
             fs::path OutDir;
             std::string Command;
-            std::string InFile;
-            std::string OutFile;
+            fs::path InFile;
+            fs::path OutFile;
             unsigned int BufferSize;
             bool EnableWav;
         } CLIOptions;
+
+        typedef struct ScannerOptions {
+            fs::path FileName;
+            unsigned int BufferSize;
+            bool EnableWav;
+        } ScannerOptions;
+
+        typedef const std::function<void (StreamInfo*)> ScannerCallbackHandle;
     }
 }
 

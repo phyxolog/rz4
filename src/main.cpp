@@ -37,7 +37,7 @@ int PrintUsage() {
     return 0;
 }
 
-int ParseArgs(rz4m::Types::CLIOptions &options, int argc, char *argv[]) {
+bool ParseArgs(rz4m::Types::CLIOptions &options, int argc, char *argv[]) {
     po::options_description desc("");
     desc.add_options()
             ("help,h", "Show help")
@@ -53,28 +53,24 @@ int ParseArgs(rz4m::Types::CLIOptions &options, int argc, char *argv[]) {
             .run();
     po::store(parsed, vm);
 
-    if (vm.count("out")) {
+    if (vm.find("out") != vm.end()) {
         options.OutFile = vm["out"].as<std::string>();
     }
 
-    if (vm.count("outdir")) {
+    if (vm.find("outdir") != vm.end()) {
         options.OutDir = vm["outdir"].as<std::string>();
     }
 
-    if (vm.count("bufsize")) {
+    if (vm.find("bufsize") != vm.end()) {
         options.BufferSize =
                 static_cast<unsigned int>(rz4m::Utils::MemToll(vm["bufsize"].as<std::string>()));
     }
 
-    if (vm.count("wav")) {
+    if (vm.find("wav") != vm.end()) {
         options.EnableWav = vm["wav"].as<bool>();
     }
 
-    if (vm.count("help")) {
-        return 1;
-    }
-
-    return 0;
+    return vm.find("help") == vm.end();
 }
 
 int main(int argc, char* argv[]) {
@@ -89,7 +85,7 @@ int main(int argc, char* argv[]) {
     std::string Command = argv[1];
     std::transform(Command.begin(), Command.end(), Command.begin(), ::tolower);
 
-    // Init options
+    // Init cli options
     rz4m::Types::CLIOptions CLIOptions;
     CLIOptions.Command = Command;
     CLIOptions.BufferSize = BUFFER_SIZE;
@@ -98,12 +94,13 @@ int main(int argc, char* argv[]) {
     // Input file always the last argument
     CLIOptions.InFile = argv[argc - 1];
 
-    if (ParseArgs(CLIOptions, argc, argv) == 1) {
+    if (!ParseArgs(CLIOptions, argc, argv)) {
         return PrintUsage();
     }
 
     PrintLogo();
 
+    // Buffer size must be greater than 0
     if (CLIOptions.BufferSize <= 0) {
         CLIOptions.BufferSize = BUFFER_SIZE;
     }
@@ -121,7 +118,8 @@ int main(int argc, char* argv[]) {
 
     if (CLIOptions.Command == COMMAND_EXTRACT
         && CLIOptions.OutDir.empty()) {
-        CLIOptions.OutDir = CurrentPath / rz4m::Utils::GenerateUniqueFolderName(CLIOptions.InFile, "extract_data");
+        CLIOptions.OutDir =
+                CurrentPath / rz4m::Utils::GenerateUniqueFolderName(CLIOptions.InFile.c_str(), "extract_data");
     }
 
     if (CLIOptions.Command == COMMAND_EXTRACT
@@ -130,6 +128,16 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "-> Buffer size: " << rz4m::Utils::HumanizeSize(CLIOptions.BufferSize) << std::endl;
+
+    rz4m::Types::ScannerOptions ScannerOptions;
+    ScannerOptions.FileName = CLIOptions.InFile;
+    ScannerOptions.BufferSize = CLIOptions.BufferSize;
+    ScannerOptions.EnableWav = CLIOptions.EnableWav;
+
+    rz4m::Engine::Scanner *Scanner = new rz4m::Engine::Scanner(ScannerOptions);
+    Scanner->Start([](rz4m::Types::StreamInfo *Stream) {
+        // TODO: Print info about found stream
+    });
 
     return 0;
 }
