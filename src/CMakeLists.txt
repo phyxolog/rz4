@@ -10,7 +10,7 @@ endif()
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
-        rz4m
+        rz4
         main.cpp
         Utils/Utils.cpp
         Types/Types.cpp
@@ -20,4 +20,4 @@ add_executable(
         ${PROJECT_SOURCES}
 )
 
-target_link_libraries(rz4m LINK_PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(rz4 LINK_PUBLIC ${Boost_LIBRARIES})

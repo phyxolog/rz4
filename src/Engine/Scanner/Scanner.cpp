@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018 Yura Zhivaga <yzhivaga@gmail.com>
  *
- * This file is part of rz4m.
+ * This file is part of rz4.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@
 
 #include "Scanner.hpp"
 
-namespace rz4m {
+namespace rz4 {
     namespace Engine {
-        Scanner::Scanner(rz4m::Types::ScannerOptions Options) : Options(Options) {
+        Scanner::Scanner(rz4::Types::ScannerOptions Options) : Options(Options) {
             FileSize = fs::file_size(Options.FileName);
             File.open(Options.FileName.string(), std::fstream::binary);
             BufferSize = Options.BufferSize;

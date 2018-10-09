@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018 Yura Zhivaga <yzhivaga@gmail.com>
  *
- * This file is part of rz4m.
+ * This file is part of rz4.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include <Types/Types.hpp>
 #include <Utils/Utils.hpp>
 
-namespace rz4m {
+namespace rz4 {
     namespace Engine {
         namespace fs = boost::filesystem;
 
@@ -40,11 +40,11 @@ namespace rz4m {
             unsigned int BufferSize;
             uintmax_t FileSize;
             uintmax_t TotalSize;
-            rz4m::Types::ScannerOptions Options;
+            rz4::Types::ScannerOptions Options;
             std::list<Types::StreamInfo> StreamList;
 
         public:
-            explicit Scanner(rz4m::Types::ScannerOptions);
+            explicit Scanner(rz4::Types::ScannerOptions);
             ~Scanner();
 
             bool Start(Types::ScannerCallbackHandle& = nullptr);

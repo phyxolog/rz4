@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018 Yura Zhivaga <yzhivaga@gmail.com>
  *
- * This file is part of rz4m.
+ * This file is part of rz4.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include <chrono>
 #include <boost/format.hpp>
 
-namespace rz4m {
+namespace rz4 {
     namespace Utils {
         int CharMatch(const char *Buffer, unsigned int BufferSize, char Needle, unsigned int Offset = 0);
         long long MemToll(std::string str);

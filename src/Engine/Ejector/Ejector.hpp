@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018 Yura Zhivaga <yzhivaga@gmail.com>
  *
- * This file is part of rz4m.
+ * This file is part of rz4.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 
-namespace rz4m {
+namespace rz4 {
     namespace Engine {
         class Ejector {
         private:

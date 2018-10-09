@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018 Yura Zhivaga <yzhivaga@gmail.com>
  *
- * This file is part of rz4m.
+ * This file is part of rz4.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #define COMMAND_COMPRESS  "c"
 #define COMMAND_EXTRACT   "e"
 
-namespace rz4m {
+namespace rz4 {
     static const std::string logo =
             "----------------------------------------------------------\n"
             "|                            ___                         |\n"
@@ -46,7 +46,7 @@ namespace rz4m {
             "|                |_|  /___|   |_/_| |_| |_|              |\n"
             "----------------------------------------------------------\n"
             "|                     Multimedia packer                  |\n"
-            "|             https://github.com/phyxolog/rz4m           |\n"
+            "|             https://github.com/phyxolog/rz4           |\n"
             "----------------------------------------------------------\n";
 
     static const std::string usage_message =
