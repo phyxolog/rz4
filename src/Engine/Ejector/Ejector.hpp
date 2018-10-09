@@ -34,7 +34,7 @@ namespace rz4m {
             uintmax_t FileSize;
 
         public:
-            Ejector(std::string FileName, unsigned int BufferSize = 65536);
+            Ejector(std::string FileName, unsigned int BufferSize = 262144);
             ~Ejector();
 
             bool Extract(uintmax_t Offset, uintmax_t Size, std::string OutFileName);

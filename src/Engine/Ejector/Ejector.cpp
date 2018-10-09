@@ -34,9 +34,10 @@ namespace rz4m {
 
         bool Ejector::Extract(uintmax_t Offset, uintmax_t Size, std::string OutFileName) {
             File.seekg(Offset, std::ios::beg);
+            unsigned int LocalBufferSize = BufferSize;
 
-            if (Size < BufferSize) {
-                BufferSize = static_cast<unsigned int>(Size);
+            if (Size < LocalBufferSize) {
+                LocalBufferSize = static_cast<unsigned int>(Size);
             }
 
             if (Size > FileSize) {
@@ -44,7 +45,7 @@ namespace rz4m {
             }
 
             uintmax_t ReadBytes = 0;
-            char *buffer = new char[BufferSize];
+            char *buffer = new char[LocalBufferSize];
             std::ofstream OutFile(OutFileName);
 
             if (!OutFile.is_open()) {
@@ -52,15 +53,15 @@ namespace rz4m {
             }
 
             while (ReadBytes < Size) {
-                if ((ReadBytes + BufferSize) > Size) {
-                    BufferSize = static_cast<unsigned int>(Size - ReadBytes);
+                if ((ReadBytes + LocalBufferSize) > Size) {
+                    LocalBufferSize = static_cast<unsigned int>(Size - ReadBytes);
                     delete[] buffer;
-                    buffer = new char[BufferSize];
+                    buffer = new char[LocalBufferSize];
                 }
 
-                File.read(buffer, BufferSize);
-                OutFile.write(buffer, BufferSize);
-                ReadBytes += BufferSize;
+                File.read(buffer, LocalBufferSize);
+                OutFile.write(buffer, LocalBufferSize);
+                ReadBytes += LocalBufferSize;
             }
 
             delete[] buffer;
