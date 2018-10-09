@@ -68,7 +68,7 @@ bool ParseArgs(rz4m::Types::CLIOptions &options, int argc, char *argv[]) {
     }
 
     if (vm.find("wav") != vm.end()) {
-        options.EnableWav = vm["wav"].as<bool>();
+        options.EnableRiffWave = vm["wav"].as<bool>();
     }
 
     if (vm.find("verbose") != vm.end()) {
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
     CLIOptions.Command = Command;
     CLIOptions.BufferSize = BUFFER_SIZE;
     CLIOptions.Verbose = true;
-    CLIOptions.EnableWav = true;
+    CLIOptions.EnableRiffWave = true;
 
     // Input file always the last argument
     CLIOptions.InFile = argv[argc - 1];
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
     rz4m::Types::ScannerOptions ScannerOptions;
     ScannerOptions.FileName = CLIOptions.InFile;
     ScannerOptions.BufferSize = CLIOptions.BufferSize;
-    ScannerOptions.EnableWav = CLIOptions.EnableWav;
+    ScannerOptions.EnableRiffWave = CLIOptions.EnableRiffWave;
 
     auto StartTime = std::chrono::steady_clock::now();
     rz4m::Engine::Scanner *Scanner = new rz4m::Engine::Scanner(ScannerOptions);  

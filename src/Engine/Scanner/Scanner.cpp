@@ -54,7 +54,7 @@ namespace rz4m {
 
                 File.read(Buffer, BufferSize);
 
-                if (Options.EnableWav) {
+                if (Options.EnableRiffWave) {
                     RiffWaveMatch(Buffer, ReadBytes, Callback);
                 }
 

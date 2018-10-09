@@ -47,13 +47,13 @@ namespace rz4m {
             fs::path OutFile;
             unsigned int BufferSize;
             bool Verbose;
-            bool EnableWav;
+            bool EnableRiffWave;
         } CLIOptions;
 
         typedef struct ScannerOptions {
             fs::path FileName;
             unsigned int BufferSize;
-            bool EnableWav;
+            bool EnableRiffWave;
         } ScannerOptions;
 
         typedef const std::function<void (StreamInfo*)> ScannerCallbackHandle;
