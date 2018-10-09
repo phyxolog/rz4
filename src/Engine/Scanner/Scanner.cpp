@@ -91,6 +91,7 @@ namespace rz4m {
             const unsigned int HeaderBufferSize = sizeof(Engine::Formats::RiffWave::RiffWaveHeader);
             char *HeaderBuffer = new char[HeaderBufferSize];
             bool ChangedPosition = false;
+            Types::StreamInfo StreamInfo;
 
             int Index = Utils::CharMatch(Buffer, BufferSize, 'R');
             
@@ -105,8 +106,7 @@ namespace rz4m {
 
                 if (Engine::Formats::RiffWave::IsRiffWaveHeader(HeaderBuffer)) {
                     RiffWaveHeader = reinterpret_cast<Engine::Formats::RiffWave::RiffWaveHeader*>(HeaderBuffer);
-
-                    Types::StreamInfo StreamInfo;
+                    
                     StreamInfo.FileType = Types::StreamTypes[Types::RiffWave];
                     StreamInfo.Ext = Types::StreamExts[Types::RiffWave];
                     StreamInfo.FileSize = RiffWaveHeader->WavSize + 8;
@@ -119,7 +119,7 @@ namespace rz4m {
 
                     if (Callback != nullptr) {
                         Callback(&StreamInfo);
-                    }                    
+                    }
                 }
 
                 Index = Utils::CharMatch(Buffer, BufferSize, 'R', Index + 1);

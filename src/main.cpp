@@ -140,6 +140,8 @@ int main(int argc, char* argv[]) {
     rz4m::Engine::Scanner *Scanner = new rz4m::Engine::Scanner(ScannerOptions);
 
     std::cout << "-> Scanning..." << std::endl << std::endl;
+
+    auto StartTime = std::chrono::steady_clock::now();
     
     Scanner->Start([](rz4m::Types::StreamInfo *Stream) {
         std::cout
@@ -181,8 +183,14 @@ int main(int argc, char* argv[]) {
         delete Ejector;
     }
 
+    auto EndTime = std::chrono::steady_clock::now();
+
     // Print info after all operations
-    std::cout << std::endl << "-> Found media streams: " << Scanner->GetCountOfFoundStreams() << std::endl;
+    auto DiffTime = EndTime - StartTime;
+    std::cout << std::endl << "-> Process time: "
+        << rz4m::Utils::PrettyTime(std::chrono::duration <double, std::milli>(DiffTime).count()) << std::endl;
+
+    std::cout << "-> Found media streams: " << Scanner->GetCountOfFoundStreams() << std::endl;
     std::cout
         << "-> Size of found media streams: "
         << rz4m::Utils::HumanizeSize(Scanner->GetSizeOfFoundStreams())

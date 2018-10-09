@@ -34,6 +34,7 @@ namespace rz4m {
         long long MemToll(std::string str);
         std::string HumanizeSize(uintmax_t Bytes);
         std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix);
+        std::string PrettyTime(uintmax_t);
     }
 }
 

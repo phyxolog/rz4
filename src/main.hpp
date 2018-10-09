@@ -20,6 +20,7 @@
 #ifndef RZ4M_RZ4M_H
 #define RZ4M_RZ4M_H
 
+#include <chrono>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>

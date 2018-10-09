@@ -97,5 +97,51 @@ namespace rz4m {
         std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix) {
             return std::string(FirstPrefix + "_" + SecondPrefix + "_" + std::to_string(std::chrono::seconds(std::time(nullptr)).count()));
         }
+
+        /*
+        * Convert ms to human-oriented time string
+        */
+        std::string PrettyTime(uintmax_t Time) {
+            const int Size = 4;
+            int Step = -1;
+            uintmax_t Steps[Size] = {
+                1000,
+                1000 * 60,
+                1000 * 60 * 60,
+                1000 * 60 * 60 * 24
+            };
+
+            for (int i = 0; i < Size; i++) {
+                if (Time < Steps[i]) {
+                    Step = i;
+                    break;
+                }
+            }
+
+            switch (Step) {
+            case 0:
+                return boost::str(boost::format("%lims") % Time);
+                break;
+            case 1: // only ms
+                return boost::str(boost::format("%li second(s), %lims") % (Time / 1000) % (Time % 1000));
+                break;
+            case 2: // minutes
+                return boost::str(boost::format("%li minute(s), %li second(s)")
+                    % (Time / (1000 * 60))
+                    % ((Time / 1000) % 60));
+                break;
+            case 3: // hours
+                return boost::str(boost::format("%li hour(s), %li minute(s), %li second(s)")
+                    % (Time / (1000 * 60 * 60))
+                    % ((Time / (1000 * 60)) % 60)
+                    % ((Time / 1000) % 60));
+                break;
+            default: // max (days)
+                return boost::str(boost::format("%li day(s), %li hour(s), %li minute(s)")
+                    % (Time / (1000 * 60 * 60 * 24))
+                    % ((Time / (1000 * 60 * 60)) % 24)
+                    % ((Time / (1000 * 60)) % 60));
+            }
+        }
     }
 }
