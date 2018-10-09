@@ -30,7 +30,7 @@
 
 namespace rz4m {
     namespace Utils {
-        int CharMatch(const char *Buffer, unsigned int BufferSize, char Needle, unsigned int Offset);
+        int CharMatch(const char *Buffer, unsigned int BufferSize, char Needle, unsigned int Offset = 0);
         long long MemToll(std::string str);
         std::string HumanizeSize(uintmax_t Bytes);
         std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix);

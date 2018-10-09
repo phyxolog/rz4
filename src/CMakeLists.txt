@@ -16,6 +16,7 @@ add_executable(
         Types/Types.cpp
         Engine/Scanner/Scanner.cpp
         Engine/Ejector/Ejector.cpp
+        Engine/Formats/RiffWave.cpp
         ${PROJECT_SOURCES}
 )
 

@@ -21,9 +21,9 @@
 
 namespace rz4m {
     namespace Engine {
-        Scanner::Scanner(rz4m::Types::ScannerOptions Options) {
+        Scanner::Scanner(rz4m::Types::ScannerOptions Options) : Options(Options) {
             FileSize = fs::file_size(Options.FileName);
-            File.open(Options.FileName.c_str(), std::fstream::binary);
+            File.open(Options.FileName.string(), std::fstream::binary);
             BufferSize = Options.BufferSize;
             TotalSize = 0;
 
@@ -39,7 +39,31 @@ namespace rz4m {
             }
         }
 
-        bool Scanner::Start(Types::ScannerCallbackHandle &Callback) {
+        bool Scanner::Start(Types::ScannerCallbackHandle &Callback) {            
+            if (!File.is_open()) {
+                return false;
+            }
+
+            uintmax_t ReadBytes = 0;
+            char *Buffer = new char[BufferSize];
+
+            while (ReadBytes < FileSize) {
+                if ((ReadBytes + BufferSize) > FileSize) {
+                    BufferSize = static_cast<unsigned int>(FileSize - ReadBytes);
+                    delete[] Buffer;
+                    Buffer = new char[BufferSize];
+                }
+
+                File.read(Buffer, BufferSize);
+
+                if (Options.EnableWav) {
+                    RiffWaveMatch(Buffer, ReadBytes, Callback);
+                }
+
+                ReadBytes += BufferSize;
+            }
+
+            delete[] Buffer;
             return true;
         }
 
@@ -57,6 +81,50 @@ namespace rz4m {
 
         unsigned long Scanner::GetCountOfFoundStreams() {
             return static_cast<unsigned long>(StreamList.size());
+        }
+
+        // Scanners
+        void Scanner::RiffWaveMatch(const char *Buffer, uintmax_t CurrentOffset, Types::ScannerCallbackHandle &Callback) {
+            Engine::Formats::RiffWave::RiffWaveHeader *RiffWaveHeader;
+            const unsigned int HeaderBufferSize = sizeof(Engine::Formats::RiffWave::RiffWaveHeader);
+            char *HeaderBuffer = new char[HeaderBufferSize];
+            bool ChangedPosition = false;
+
+            int Index = Utils::CharMatch(Buffer, BufferSize, 'R');
+            
+            while (Index != -1 && static_cast<unsigned int>(Index) <= BufferSize) {
+                if (Index + HeaderBufferSize <= BufferSize) {
+                    std::memcpy(HeaderBuffer, Buffer + Index, HeaderBufferSize);
+                } else {
+                    File.seekg(CurrentOffset + Index, std::ios::beg);
+                    File.read(HeaderBuffer, HeaderBufferSize);
+                    ChangedPosition = true;
+                }     
+
+                if (Engine::Formats::RiffWave::IsRiffWaveHeader(HeaderBuffer)) {
+                    RiffWaveHeader = reinterpret_cast<Engine::Formats::RiffWave::RiffWaveHeader*>(HeaderBuffer);
+
+                    Types::StreamInfo StreamInfo;
+                    StreamInfo.FileType = Types::StreamTypes[Types::RiffWave];
+                    StreamInfo.Ext = Types::StreamExts[Types::RiffWave];
+                    StreamInfo.FileSize = RiffWaveHeader->WavSize + 8;
+                    StreamInfo.Offset = CurrentOffset + Index;
+                    StreamInfo.Data = RiffWaveHeader;
+                    
+                    StreamList.push_front(StreamInfo);
+
+                    TotalSize += StreamInfo.FileSize;
+
+                    Callback(&StreamInfo);
+                }
+
+                Index = Utils::CharMatch(Buffer, BufferSize, 'R', Index + 1);
+            }
+
+            delete[] HeaderBuffer;
+            if (ChangedPosition) {
+                File.seekg(CurrentOffset + BufferSize, std::ios::beg);
+            }
         }
     }
 }

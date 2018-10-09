@@ -127,7 +127,10 @@ int main(int argc, char* argv[]) {
         fs::create_directory(CLIOptions.OutDir);
     }
 
-    std::cout << "-> Buffer size: " << rz4m::Utils::HumanizeSize(CLIOptions.BufferSize) << std::endl;
+    std::cout
+        << "-> Buffer size: "
+        << rz4m::Utils::HumanizeSize(CLIOptions.BufferSize)
+        << std::endl;
 
     rz4m::Types::ScannerOptions ScannerOptions;
     ScannerOptions.FileName = CLIOptions.InFile;
@@ -135,9 +138,27 @@ int main(int argc, char* argv[]) {
     ScannerOptions.EnableWav = CLIOptions.EnableWav;
 
     rz4m::Engine::Scanner *Scanner = new rz4m::Engine::Scanner(ScannerOptions);
+
+    std::cout << "-> Scanning..." << std::endl << std::endl;
+    
     Scanner->Start([](rz4m::Types::StreamInfo *Stream) {
-        // TODO: Print info about found stream
+        std::cout
+            << boost::format("--> Found %s @ 0x%016X (%s)")
+            % Stream->FileType
+            % Stream->Offset
+            % rz4m::Utils::HumanizeSize(Stream->FileSize)
+            << std::endl;
     });
+
+    // Print info after all operations
+    std::cout << std::endl << "-> Found media streams: " << Scanner->GetCountOfFoundStreams() << std::endl;
+    std::cout
+        << "-> Size of found media streams: "
+        << rz4m::Utils::HumanizeSize(Scanner->GetSizeOfFoundStreams())
+        << " ("
+        << Scanner->GetSizeOfFoundStreams()
+        << " bytes)"
+        << std::endl;
 
     return 0;
 }

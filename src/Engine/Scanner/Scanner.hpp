@@ -26,7 +26,9 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 
+#include <Engine/Formats/RiffWave.hpp>
 #include <Types/Types.hpp>
+#include <Utils/Utils.hpp>
 
 namespace rz4m {
     namespace Engine {
@@ -38,6 +40,7 @@ namespace rz4m {
             unsigned int BufferSize;
             uintmax_t FileSize;
             uintmax_t TotalSize;
+            rz4m::Types::ScannerOptions Options;
             std::list<Types::StreamInfo> StreamList;
 
         public:
@@ -49,6 +52,9 @@ namespace rz4m {
             std::list<Types::StreamInfo> *GetListOfFoundStreams();
             unsigned long GetCountOfFoundStreams();
             uintmax_t GetSizeOfFoundStreams();
+
+            // Scanners
+            void RiffWaveMatch(const char *, uintmax_t, Types::ScannerCallbackHandle&);
         };
     }
 }

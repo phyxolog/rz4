@@ -21,6 +21,7 @@
 
 namespace rz4m {
     namespace Types {
-
+        const char* StreamTypes[] = { "RIFF WAVE" };
+        const char* StreamExts[] = { "wav" };
     }
 }

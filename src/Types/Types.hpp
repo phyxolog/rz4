@@ -27,13 +27,17 @@ namespace rz4m {
     namespace Types {
         namespace fs = boost::filesystem;
 
+        enum { RiffWave = 0 };
+        extern const char* StreamTypes[];
+        extern const char* StreamExts[];
+
         typedef struct StreamInfo {
             std::string FileType;
             std::string Ext;
             std::string ShortType;
             uintmax_t FileSize;
             uintmax_t Offset;
-            void *data;
+            void *Data;
         } StreamInfo;
 
         typedef struct CLIOptions {

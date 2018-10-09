@@ -22,6 +22,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+#include <boost/format.hpp>
 
 #include "Engine/Scanner/Scanner.hpp"
 #include "Utils/Utils.hpp"
@@ -60,6 +61,5 @@ namespace rz4m {
             "      --outdir=<path>  - path to output folder (for extracted files)\n"
             "      --bufsize=N      - set buffer size (default: 256kb).\n\n";
 }
-
 
 #endif //RZ4M_RZ4M_H
