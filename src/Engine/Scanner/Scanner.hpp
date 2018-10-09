@@ -26,7 +26,7 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 
-#include <Types/Types.h>
+#include <Types/Types.hpp>
 
 namespace rz4m {
     namespace Engine {

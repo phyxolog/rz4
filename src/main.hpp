@@ -23,9 +23,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-#include "Engine/Scanner/Scanner.h"
-#include "Utils/Utils.h"
-#include "Types/Types.h"
+#include "Engine/Scanner/Scanner.hpp"
+#include "Utils/Utils.hpp"
+#include "Types/Types.hpp"
 
 #define BUFFER_SIZE       262144
 #define COMMAND_SCAN      "s"

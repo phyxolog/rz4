@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
     if (CLIOptions.Command == COMMAND_EXTRACT
         && CLIOptions.OutDir.empty()) {
         CLIOptions.OutDir =
-                CurrentPath / rz4m::Utils::GenerateUniqueFolderName(CLIOptions.InFile.c_str(), "extract_data");
+                CurrentPath / rz4m::Utils::GenerateUniqueFolderName(CLIOptions.InFile.string(), "extract_data");
     }
 
     if (CLIOptions.Command == COMMAND_EXTRACT

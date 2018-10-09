@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Scanner.h"
+#include "Scanner.hpp"
 
 namespace rz4m {
     namespace Engine {
@@ -39,8 +39,13 @@ namespace rz4m {
             }
         }
 
-        bool Scanner::Start(Types::ScannerCallbackHandle &Callback) {}
-        bool Scanner::Stop() {}
+        bool Scanner::Start(Types::ScannerCallbackHandle &Callback) {
+            return true;
+        }
+
+        bool Scanner::Stop() {
+            return true;
+        }
 
         std::list<Types::StreamInfo> *Scanner::GetListOfFoundStreams() {
             return &StreamList;
@@ -51,7 +56,7 @@ namespace rz4m {
         }
 
         unsigned long Scanner::GetCountOfFoundStreams() {
-            return StreamList.size();
+            return static_cast<unsigned long>(StreamList.size());
         }
     }
 }
