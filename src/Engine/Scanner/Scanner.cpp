@@ -115,7 +115,9 @@ namespace rz4m {
 
                     TotalSize += StreamInfo.FileSize;
 
-                    Callback(&StreamInfo);
+                    if (Callback != nullptr) {
+                        Callback(&StreamInfo);
+                    }                    
                 }
 
                 Index = Utils::CharMatch(Buffer, BufferSize, 'R', Index + 1);
