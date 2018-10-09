@@ -150,6 +150,37 @@ int main(int argc, char* argv[]) {
             << std::endl;
     });
 
+    Scanner->Close();
+
+    if (CLIOptions.Command == COMMAND_EXTRACT) {
+        std::cout << std::endl << "-> Extract data..." << std::endl;
+           
+        rz4m::Engine::Ejector *Ejector =
+            new rz4m::Engine::Ejector(CLIOptions.InFile.string(), CLIOptions.BufferSize);
+
+        std::list<rz4m::Types::StreamInfo> *FoundStreams = Scanner->GetListOfFoundStreams();
+
+        unsigned long CountOfFoundStreams = Scanner->GetCountOfFoundStreams();
+        unsigned long Counter = 1;
+
+        for (auto Stream : *FoundStreams) {
+            const fs::path Path = CLIOptions.OutDir / boost::str(boost::format("%016X-%016X.%s")
+                % Stream.Offset
+                % Stream.FileSize
+                % Stream.Ext);
+
+            Ejector->Extract(Stream.Offset, Stream.FileSize, Path.string());
+            std::cout << "\r" << "-> " << Counter * 100 / CountOfFoundStreams << "% completed.";
+            Counter++;
+        }
+
+        if (Counter > 1) {
+            std::cout << std::endl;
+        }
+
+        delete Ejector;
+    }
+
     // Print info after all operations
     std::cout << std::endl << "-> Found media streams: " << Scanner->GetCountOfFoundStreams() << std::endl;
     std::cout

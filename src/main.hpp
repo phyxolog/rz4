@@ -25,6 +25,7 @@
 #include <boost/format.hpp>
 
 #include "Engine/Scanner/Scanner.hpp"
+#include "Engine/Ejector/Ejector.hpp"
 #include "Utils/Utils.hpp"
 #include "Types/Types.hpp"
 

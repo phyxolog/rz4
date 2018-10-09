@@ -67,8 +67,10 @@ namespace rz4m {
             return true;
         }
 
-        bool Scanner::Stop() {
-            return true;
+        void Scanner::Close() {
+            if (File.is_open()) {
+                File.close();
+            }
         }
 
         std::list<Types::StreamInfo> *Scanner::GetListOfFoundStreams() {

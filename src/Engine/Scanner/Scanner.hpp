@@ -48,7 +48,7 @@ namespace rz4m {
             ~Scanner();
 
             bool Start(Types::ScannerCallbackHandle& = nullptr);
-            bool Stop();
+            void Close();
             std::list<Types::StreamInfo> *GetListOfFoundStreams();
             unsigned long GetCountOfFoundStreams();
             uintmax_t GetSizeOfFoundStreams();
