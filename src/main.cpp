@@ -41,6 +41,7 @@ bool ParseArgs(rz4m::Types::CLIOptions &options, int argc, char *argv[]) {
     po::options_description desc("");
     desc.add_options()
             ("help,h", "Show help")
+            ("verbose,v", po::value<bool>())
             ("wav,w", po::value<bool>())
             ("out,o", po::value<std::string>())
             ("outdir,d", po::value<std::string>())
@@ -70,6 +71,10 @@ bool ParseArgs(rz4m::Types::CLIOptions &options, int argc, char *argv[]) {
         options.EnableWav = vm["wav"].as<bool>();
     }
 
+    if (vm.find("verbose") != vm.end()) {
+        options.Verbose = vm["verbose"].as<bool>();
+    }
+
     return vm.find("help") == vm.end();
 }
 
@@ -89,6 +94,7 @@ int main(int argc, char* argv[]) {
     rz4m::Types::CLIOptions CLIOptions;
     CLIOptions.Command = Command;
     CLIOptions.BufferSize = BUFFER_SIZE;
+    CLIOptions.Verbose = true;
     CLIOptions.EnableWav = true;
 
     // Input file always the last argument
@@ -137,21 +143,19 @@ int main(int argc, char* argv[]) {
     ScannerOptions.BufferSize = CLIOptions.BufferSize;
     ScannerOptions.EnableWav = CLIOptions.EnableWav;
 
-    rz4m::Engine::Scanner *Scanner = new rz4m::Engine::Scanner(ScannerOptions);
-
-    std::cout << "-> Scanning..." << std::endl << std::endl;
-
     auto StartTime = std::chrono::steady_clock::now();
-    
-    Scanner->Start([](rz4m::Types::StreamInfo *Stream) {
+    rz4m::Engine::Scanner *Scanner = new rz4m::Engine::Scanner(ScannerOptions);  
+    rz4m::Types::ScannerCallbackHandle Callback = [](rz4m::Types::StreamInfo *Stream) {
         std::cout
             << boost::format("--> Found %s @ 0x%016X (%s)")
             % Stream->FileType
             % Stream->Offset
             % rz4m::Utils::HumanizeSize(Stream->FileSize)
             << std::endl;
-    });
+    };
 
+    std::cout << "-> Scanning..." << std::endl << std::endl;
+    Scanner->Start(CLIOptions.Verbose ? Callback : nullptr);
     Scanner->Close();
 
     if (CLIOptions.Command == COMMAND_EXTRACT) {
@@ -188,7 +192,9 @@ int main(int argc, char* argv[]) {
     // Print info after all operations
     auto DiffTime = EndTime - StartTime;
     std::cout << std::endl << "-> Process time: "
-        << rz4m::Utils::PrettyTime(std::chrono::duration <double, std::milli>(DiffTime).count()) << std::endl;
+        << rz4m::Utils::PrettyTime(
+            static_cast<uintmax_t>(std::chrono::duration <double, std::milli>(DiffTime).count())
+        ) << std::endl;
 
     std::cout << "-> Found media streams: " << Scanner->GetCountOfFoundStreams() << std::endl;
     std::cout

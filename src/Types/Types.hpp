@@ -46,6 +46,7 @@ namespace rz4m {
             fs::path InFile;
             fs::path OutFile;
             unsigned int BufferSize;
+            bool Verbose;
             bool EnableWav;
         } CLIOptions;
 

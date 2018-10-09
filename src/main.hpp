@@ -61,7 +61,8 @@ namespace rz4m {
             "    Other options:\n"
             "      --out=<filename> - path to output file name\n"
             "      --outdir=<path>  - path to output folder (for extracted files)\n"
-            "      --bufsize=N      - set buffer size (default: 256kb).\n\n";
+            "      --bufsize=N      - set buffer size (default: 256kb).\n"
+            "      --verbose=N      - enable verbose mode (default: 1).\n\n";
 }
 
 #endif //RZ4M_RZ4M_H
