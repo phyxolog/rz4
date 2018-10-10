@@ -143,5 +143,9 @@ namespace rz4 {
                     % ((Time / (1000 * 60)) % 60));
             }
         }
+
+        std::string PrettyTime(std::chrono::duration<double> Time) {
+            return PrettyTime(static_cast<uintmax_t>(std::chrono::duration<double, std::milli>(Time).count()));
+        }
     }
 }

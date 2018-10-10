@@ -35,6 +35,7 @@ namespace rz4 {
         std::string HumanizeSize(uintmax_t Bytes);
         std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix);
         std::string PrettyTime(uintmax_t);
+        std::string PrettyTime(std::chrono::duration<double>);
     }
 }
 

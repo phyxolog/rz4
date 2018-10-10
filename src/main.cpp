@@ -37,7 +37,7 @@ int PrintUsage() {
     return 0;
 }
 
-bool ParseArgs(rz4::Types::CLIOptions &options, int argc, char *argv[]) {
+bool ParseArgs(rz4::Types::CLIOptions &Options, int argc, char *argv[]) {
     po::options_description desc("");
     desc.add_options()
             ("help,h", "Show help")
@@ -55,24 +55,24 @@ bool ParseArgs(rz4::Types::CLIOptions &options, int argc, char *argv[]) {
     po::store(parsed, vm);
 
     if (vm.find("out") != vm.end()) {
-        options.OutFile = vm["out"].as<std::string>();
+        Options.OutFile = vm["out"].as<std::string>();
     }
 
     if (vm.find("outdir") != vm.end()) {
-        options.OutDir = vm["outdir"].as<std::string>();
+        Options.OutDir = vm["outdir"].as<std::string>();
     }
 
     if (vm.find("bufsize") != vm.end()) {
-        options.BufferSize =
+        Options.BufferSize =
                 static_cast<unsigned int>(rz4::Utils::MemToll(vm["bufsize"].as<std::string>()));
     }
 
     if (vm.find("wav") != vm.end()) {
-        options.EnableRiffWave = vm["wav"].as<bool>();
+        Options.EnableRiffWave = vm["wav"].as<bool>();
     }
 
     if (vm.find("verbose") != vm.end()) {
-        options.Verbose = vm["verbose"].as<bool>();
+        Options.Verbose = vm["verbose"].as<bool>();
     }
 
     return vm.find("help") == vm.end();
@@ -144,6 +144,7 @@ int main(int argc, char* argv[]) {
     ScannerOptions.EnableRiffWave = CLIOptions.EnableRiffWave;
 
     auto StartTime = std::chrono::steady_clock::now();
+    auto StartScanTime = std::chrono::steady_clock::now();
     rz4::Engine::Scanner *Scanner = new rz4::Engine::Scanner(ScannerOptions);  
     rz4::Types::ScannerCallbackHandle Callback = [](rz4::Types::StreamInfo *Stream) {
         std::cout
@@ -157,6 +158,8 @@ int main(int argc, char* argv[]) {
     std::cout << "-> Scanning..." << std::endl << std::endl;
     Scanner->Start(CLIOptions.Verbose ? Callback : nullptr);
     Scanner->Close();
+
+    auto EndScanTime = std::chrono::steady_clock::now();
 
     if (CLIOptions.Command == COMMAND_EXTRACT) {
         std::cout << std::endl << "-> Extract data..." << std::endl;
@@ -191,10 +194,11 @@ int main(int argc, char* argv[]) {
 
     // Print info after all operations
     auto DiffTime = EndTime - StartTime;
-    std::cout << std::endl << "-> Process time: "
-        << rz4::Utils::PrettyTime(
-            static_cast<uintmax_t>(std::chrono::duration<double, std::milli>(DiffTime).count())
-        ) << std::endl;
+    auto DiffScanTime = EndScanTime - StartScanTime;
+
+    std::cout << std::endl;
+    std::cout << "-> Scan time: " << rz4::Utils::PrettyTime(DiffScanTime) << std::endl;
+    std::cout << "-> Process time: " << rz4::Utils::PrettyTime(DiffTime) << std::endl;
 
     std::cout << "-> Found media streams: " << Scanner->GetCountOfFoundStreams() << std::endl;
     std::cout
