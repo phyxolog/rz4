@@ -28,7 +28,7 @@ namespace rz4 {
 
             BufferSize = Options.BufferSize;
 
-            if (FileSize < Options.BufferSize) {
+            if (FileSize < BufferSize) {
                 BufferSize = static_cast<unsigned int>(FileSize);
             }
         }
@@ -38,6 +38,11 @@ namespace rz4 {
         }
 
         void Compressor::Start() {
+            if (!File.is_open() || !OutFile.is_open()) {
+                // TODO: Handle errors
+                return;
+            }
+
             // TODO
         }
 

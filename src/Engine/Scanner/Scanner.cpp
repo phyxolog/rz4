@@ -27,7 +27,7 @@ namespace rz4 {
             BufferSize = Options.BufferSize;
             TotalSize = 0;
 
-            if (FileSize < Options.BufferSize) {
+            if (FileSize < BufferSize) {
                 BufferSize = static_cast<unsigned int>(FileSize);
             }
         }

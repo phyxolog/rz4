@@ -25,7 +25,7 @@ namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
 void PrintLogo(bool withEndl = true) {
-    std::cout << rz4::logo;
+    std::cout << rz4::Logo;
     if (withEndl) {
         std::cout << std::endl;
     }
@@ -33,7 +33,7 @@ void PrintLogo(bool withEndl = true) {
 
 int PrintUsage() {
     PrintLogo(false);
-    std::cout << rz4::usage_message << std::endl;
+    std::cout << rz4::UsageMessage << std::endl;
     return 0;
 }
 
@@ -204,7 +204,7 @@ int main(int argc, char* argv[]) {
             CLIOptions.OutFile = CLIOptions.InFile.string() + ".rzf";
         }
 
-        // For stop global timer
+        // For pause global timer
         auto StartLoopTime = std::chrono::high_resolution_clock::now();
         while (fs::exists(CLIOptions.OutFile)) {
             std::cout << "-> Output file \"" << CLIOptions.OutFile.string() << "\" was existing. Overwrite? (y/n) ";

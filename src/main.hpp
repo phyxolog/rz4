@@ -37,7 +37,7 @@
 #define COMMAND_EXTRACT   "e"
 
 namespace rz4 {
-    static const std::string logo =
+    static const std::string Logo =
             "----------------------------------------------------------\n"
             "|                                ___                     |\n"
             "|                               /   |                    |\n"
@@ -50,7 +50,7 @@ namespace rz4 {
             "|             https://github.com/phyxolog/rz4           |\n"
             "----------------------------------------------------------\n";
 
-    static const std::string usage_message =
+    static const std::string UsageMessage =
             "Usage:\n"
             "    rz4 <command> [options] <input_file>\n\n"
             "    Commands:\n"
