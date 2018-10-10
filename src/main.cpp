@@ -78,6 +78,13 @@ bool ParseArgs(rz4::Types::CLIOptions &Options, int argc, char *argv[]) {
     return vm.find("help") == vm.end();
 }
 
+bool IsAffirmativeAnswer() {
+    std::string ch;
+    std::cin >> ch;
+    std::transform(ch.begin(), ch.end(), ch.begin(), ::tolower);
+    return ch == "y" || ch == "yes" || ch == "yep";
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 3) {
         return PrintUsage();
@@ -155,7 +162,8 @@ int main(int argc, char* argv[]) {
             << std::endl;
     };
 
-    std::cout << "-> Scanning..." << std::endl << std::endl;
+    std::cout << "-> Scanning..." << std::endl;
+    if (CLIOptions.Verbose) std::cout << std::endl;
     Scanner->Start(CLIOptions.Verbose ? Callback : nullptr);
     Scanner->Close();
 
@@ -188,6 +196,31 @@ int main(int argc, char* argv[]) {
         }
 
         delete Ejector;
+    }
+
+    if (CLIOptions.Command == COMMAND_COMPRESS) {
+        std::cout << std::endl << "-> Compress data..." << std::endl;
+
+        if (CLIOptions.OutFile.empty()) {
+            CLIOptions.OutFile = CLIOptions.InFile.string() + ".rz4";
+        }
+
+        while (fs::exists(CLIOptions.OutFile)) {
+            std::cout << "-> Output file \"" << CLIOptions.OutFile.string() << "\" was existing. Overwrite? (y/n) ";
+
+            if (IsAffirmativeAnswer()) {
+                fs::remove(CLIOptions.OutFile);
+                // Maybe has the meaning break loop here
+                // But if file don't removing - we have
+                // additional check
+            } else {
+                std::string OutFile;
+                std::cout << "-> Enter file name of output file: ";
+                std::cin.ignore();
+                std::getline(std::cin, OutFile);
+                CLIOptions.OutFile = OutFile;
+            }
+        }
     }
 
     auto EndTime = std::chrono::steady_clock::now();
