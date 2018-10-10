@@ -202,7 +202,7 @@ int main(int argc, char* argv[]) {
         std::cout << std::endl << "-> Compress data..." << std::endl;
 
         if (CLIOptions.OutFile.empty()) {
-            CLIOptions.OutFile = CLIOptions.InFile.string() + ".rz4";
+            CLIOptions.OutFile = CLIOptions.InFile.string() + ".rzf";
         }
 
         while (fs::exists(CLIOptions.OutFile)) {
