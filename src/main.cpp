@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
     auto DiffTime = EndTime - StartTime;
     std::cout << std::endl << "-> Process time: "
         << rz4::Utils::PrettyTime(
-            static_cast<uintmax_t>(std::chrono::duration <double, std::milli>(DiffTime).count())
+            static_cast<uintmax_t>(std::chrono::duration<double, std::milli>(DiffTime).count())
         ) << std::endl;
 
     std::cout << "-> Found media streams: " << Scanner->GetCountOfFoundStreams() << std::endl;
