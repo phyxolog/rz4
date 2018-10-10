@@ -107,7 +107,7 @@ namespace rz4 {
                     
                     StreamInfo.FileType = Types::StreamTypes[Types::RiffWave];
                     StreamInfo.Ext = Types::StreamExts[Types::RiffWave];
-                    StreamInfo.FileSize = RiffWaveHeader->WavSize + 8;
+                    StreamInfo.FileSize = static_cast<uintmax_t>(RiffWaveHeader->WavSize) + 8;
                     StreamInfo.Offset = CurrentOffset + Index;
                     StreamInfo.Data = RiffWaveHeader;
                     
@@ -120,7 +120,7 @@ namespace rz4 {
                     }
                 }
 
-                Index = Utils::CharMatch(Buffer, BufferSize, 'R', Index + 1);
+                Index = Utils::CharMatch(Buffer, BufferSize, 'R', static_cast<unsigned int>(Index + 1));
             }
 
             delete[] HeaderBuffer;
