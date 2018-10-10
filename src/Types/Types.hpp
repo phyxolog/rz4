@@ -21,6 +21,7 @@
 #define RZ4M_TYPES_H
 
 #include <string>
+#include <list>
 #include <boost/filesystem.hpp>
 
 namespace rz4 {
@@ -55,6 +56,14 @@ namespace rz4 {
             unsigned int BufferSize;
             bool EnableRiffWave;
         } ScannerOptions;
+
+        typedef struct CompressorOptions {
+            fs::path FileName;
+            fs::path OutFile;
+            unsigned int BufferSize;
+            std::list<rz4::Types::StreamInfo> *ListOfStreams;
+            bool EnableRiffWave;
+        } CompressorOptions;
 
         typedef const std::function<void (StreamInfo*)> ScannerCallbackHandle;
     }

@@ -20,10 +20,32 @@
 #ifndef RZ4_COMPRESSOR_HPP
 #define RZ4_COMPRESSOR_HPP
 
+#include <fstream>
+#include <boost/filesystem.hpp>
 
-class Compressor {
+#include <Types/Types.hpp>
 
-};
+namespace rz4 {
+    namespace Engine {
+        namespace fs = boost::filesystem;
+
+        class Compressor {
+        private:
+            std::ifstream File;
+            std::ofstream OutFile;
+            Types::CompressorOptions Options;
+            unsigned int BufferSize;
+            uint64_t FileSize;
+
+        public:
+            explicit Compressor(Types::CompressorOptions);
+            ~Compressor();
+
+            void Start();
+            void Close();
+        };
+    }
+}
 
 
 #endif //RZ4_COMPRESSOR_HPP

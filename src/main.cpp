@@ -133,11 +133,10 @@ int main(int argc, char* argv[]) {
         && CLIOptions.OutDir.empty()) {
         CLIOptions.OutDir =
                 CurrentPath / rz4::Utils::GenerateUniqueFolderName(CLIOptions.InFile.string(), "extract_data");
-    }
 
-    if (CLIOptions.Command == COMMAND_EXTRACT
-        && !fs::exists(CLIOptions.OutDir)) {
-        fs::create_directory(CLIOptions.OutDir);
+        if (!fs::exists(CLIOptions.OutDir)) {
+            fs::create_directory(CLIOptions.OutDir);
+        }
     }
 
     std::cout
@@ -150,8 +149,8 @@ int main(int argc, char* argv[]) {
     ScannerOptions.BufferSize = CLIOptions.BufferSize;
     ScannerOptions.EnableRiffWave = CLIOptions.EnableRiffWave;
 
-    auto StartTime = std::chrono::steady_clock::now();
-    auto StartScanTime = std::chrono::steady_clock::now();
+    auto StartTime = std::chrono::high_resolution_clock::now();
+    auto StartScanTime = std::chrono::high_resolution_clock::now();
     rz4::Engine::Scanner *Scanner = new rz4::Engine::Scanner(ScannerOptions);  
     rz4::Types::ScannerCallbackHandle Callback = [](rz4::Types::StreamInfo *Stream) {
         std::cout
@@ -167,7 +166,7 @@ int main(int argc, char* argv[]) {
     Scanner->Start(CLIOptions.Verbose ? Callback : nullptr);
     Scanner->Close();
 
-    auto EndScanTime = std::chrono::steady_clock::now();
+    auto EndScanTime = std::chrono::high_resolution_clock::now();
 
     if (CLIOptions.Command == COMMAND_EXTRACT) {
         std::cout << std::endl << "-> Extract data..." << std::endl;
@@ -205,6 +204,8 @@ int main(int argc, char* argv[]) {
             CLIOptions.OutFile = CLIOptions.InFile.string() + ".rzf";
         }
 
+        // For stop global timer
+        auto StartLoopTime = std::chrono::high_resolution_clock::now();
         while (fs::exists(CLIOptions.OutFile)) {
             std::cout << "-> Output file \"" << CLIOptions.OutFile.string() << "\" was existing. Overwrite? (y/n) ";
 
@@ -221,9 +222,22 @@ int main(int argc, char* argv[]) {
                 CLIOptions.OutFile = OutFile;
             }
         }
+
+        StartTime += std::chrono::high_resolution_clock::now() - StartLoopTime;
+
+        rz4::Types::CompressorOptions CompressorOptions;
+        CompressorOptions.FileName = CLIOptions.InFile;
+        CompressorOptions.OutFile = CLIOptions.OutFile;
+        CompressorOptions.BufferSize = CLIOptions.BufferSize;
+        CompressorOptions.ListOfStreams = Scanner->GetListOfFoundStreams();
+        CompressorOptions.EnableRiffWave = CLIOptions.EnableRiffWave;
+
+        rz4::Engine::Compressor *Compressor = new rz4::Engine::Compressor(CompressorOptions);
+        Compressor->Start();
+        Compressor->Close();
     }
 
-    auto EndTime = std::chrono::steady_clock::now();
+    auto EndTime = std::chrono::high_resolution_clock::now();
 
     // Print info after all operations
     auto DiffTime = EndTime - StartTime;

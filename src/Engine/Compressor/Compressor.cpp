@@ -18,3 +18,33 @@
 */
 
 #include "Compressor.hpp"
+
+namespace rz4 {
+    namespace Engine {
+        Compressor::Compressor(Types::CompressorOptions Options) : Options(Options) {
+            FileSize = fs::file_size(Options.FileName);
+            File.open(Options.FileName.string(), std::fstream::binary);
+            OutFile.open(Options.OutFile.string(), std::fstream::out | std::fstream::trunc | std::fstream::binary);
+
+            BufferSize = Options.BufferSize;
+
+            if (FileSize < Options.BufferSize) {
+                BufferSize = static_cast<unsigned int>(FileSize);
+            }
+        }
+
+        Compressor::~Compressor() {
+            Close();
+        }
+
+        void Compressor::Start() {
+            // TODO
+        }
+
+        void Compressor::Close() {
+            if (File.is_open()) {
+                File.close();
+            }
+        }
+    }
+}

@@ -27,6 +27,7 @@
 
 #include "Engine/Scanner/Scanner.hpp"
 #include "Engine/Ejector/Ejector.hpp"
+#include "Engine/Compressor/Compressor.hpp"
 #include "Utils/Utils.hpp"
 #include "Types/Types.hpp"
 

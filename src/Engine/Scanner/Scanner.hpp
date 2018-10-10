@@ -40,11 +40,11 @@ namespace rz4 {
             unsigned int BufferSize;
             uintmax_t FileSize;
             uintmax_t TotalSize;
-            rz4::Types::ScannerOptions Options;
+            Types::ScannerOptions Options;
             std::list<Types::StreamInfo> StreamList;
 
         public:
-            explicit Scanner(rz4::Types::ScannerOptions);
+            explicit Scanner(Types::ScannerOptions);
             ~Scanner();
 
             bool Start(Types::ScannerCallbackHandle& = nullptr);
