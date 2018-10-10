@@ -6,8 +6,8 @@ Original Size - 8 bytes
 NumberOfStreams - 4 bytes
 CompressedStreams[] -
   {
-    Type - 8 bytes (Fixed String)
-    Compressor - 8 bytes (Fixed String)
+    Type - 1 byte
+    Compressor - 1 byte
     Offset - 8 bytes
     CompressedSize - 8 bytes
     OriginalSize - 8 bytes
@@ -41,8 +41,8 @@ and fill him.
 
 Example for RIFF WAVE stream:
 
-Type - "RIFFWAVE"
-Compressor - "WAVPACK"
+Type - 0x1
+Compressor - 0x1
 Offset - 512
 CompressedSize - 56899
 OriginalSize - 108521

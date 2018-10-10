@@ -20,10 +20,14 @@
 #ifndef RZ4_COMPRESSOR_HPP
 #define RZ4_COMPRESSOR_HPP
 
+#include <iostream>
 #include <fstream>
+#include <list>
+#include <vector>
 #include <boost/filesystem.hpp>
 
 #include <Types/Types.hpp>
+#include <Utils/Utils.hpp>
 
 namespace rz4 {
     namespace Engine {

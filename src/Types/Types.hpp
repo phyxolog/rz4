@@ -36,7 +36,7 @@ namespace rz4 {
             std::string FileType;
             std::string Ext;
             std::string ShortType;
-            uintmax_t FileSize;
+            uintmax_t Size;
             uintmax_t Offset;
             void *Data;
         } StreamInfo;
@@ -57,15 +57,37 @@ namespace rz4 {
             bool EnableRiffWave;
         } ScannerOptions;
 
+        typedef const std::function<void(StreamInfo*)> ScannerCallbackHandle;
+
         typedef struct CompressorOptions {
             fs::path FileName;
             fs::path OutFile;
             unsigned int BufferSize;
-            std::list<rz4::Types::StreamInfo> *ListOfStreams;
+            std::list<StreamInfo> *ListOfStreams;
             bool EnableRiffWave;
         } CompressorOptions;
+ 
+        const char RzfHeaderSignature[4] = { 'R', 'Z', '4', 'F' };
 
-        typedef const std::function<void (StreamInfo*)> ScannerCallbackHandle;
+#pragma pack(push, 1)
+        typedef struct RzfHeader {
+            char Signature[4];
+            uintmax_t OriginalSize;
+            unsigned int NumberOfStreams;
+        } RzfHeader;
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+        typedef struct RzfCompressedStream {
+            unsigned char Type;
+            unsigned char Compressor;
+            uintmax_t Offset;
+            uintmax_t CompressedSize;
+            uintmax_t OriginalSize;
+            uint32_t OriginalCRC32;
+            void *CompressedData;
+        } RzfCompressedStream;
+#pragma pack(pop)
     }
 }
 

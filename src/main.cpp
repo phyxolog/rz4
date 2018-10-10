@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
             << boost::format("--> Found %s @ 0x%016X (%s)")
             % Stream->FileType
             % Stream->Offset
-            % rz4::Utils::HumanizeSize(Stream->FileSize)
+            % rz4::Utils::HumanizeSize(Stream->Size)
             << std::endl;
     };
 
@@ -182,10 +182,10 @@ int main(int argc, char* argv[]) {
         for (auto Stream : *FoundStreams) {
             const fs::path Path = CLIOptions.OutDir / boost::str(boost::format("%016X-%016X.%s")
                 % Stream.Offset
-                % Stream.FileSize
+                % Stream.Size
                 % Stream.Ext);
 
-            Ejector->Extract(Stream.Offset, Stream.FileSize, Path.string());
+            Ejector->Extract(Stream.Offset, Stream.Size, Path.string());
             std::cout << "\r" << "-> " << Counter * 100 / CountOfFoundStreams << "% completed.";
             Counter++;
         }

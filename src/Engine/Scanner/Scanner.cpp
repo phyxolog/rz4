@@ -97,7 +97,7 @@ namespace rz4 {
                 if (Index + HeaderBufferSize <= BufferSize) {
                     std::memcpy(HeaderBuffer, Buffer + Index, HeaderBufferSize);
                 } else {
-                    File.seekg(CurrentOffset + Index, std::ios::beg);
+                    File.seekg(CurrentOffset + Index, std::fstream::beg);
                     File.read(HeaderBuffer, HeaderBufferSize);
                     ChangedPosition = true;
                 }     
@@ -107,13 +107,13 @@ namespace rz4 {
                     
                     StreamInfo.FileType = Types::StreamTypes[Types::RiffWave];
                     StreamInfo.Ext = Types::StreamExts[Types::RiffWave];
-                    StreamInfo.FileSize = static_cast<uintmax_t>(RiffWaveHeader->WavSize) + 8;
+                    StreamInfo.Size = static_cast<uintmax_t>(RiffWaveHeader->WavSize) + 8;
                     StreamInfo.Offset = CurrentOffset + Index;
                     StreamInfo.Data = RiffWaveHeader;
                     
-                    StreamList.push_front(StreamInfo);
+                    StreamList.push_back(StreamInfo);
 
-                    TotalSize += StreamInfo.FileSize;
+                    TotalSize += StreamInfo.Size;
 
                     if (Callback != nullptr) {
                         Callback(&StreamInfo);
@@ -125,7 +125,7 @@ namespace rz4 {
 
             delete[] HeaderBuffer;
             if (ChangedPosition) {
-                File.seekg(CurrentOffset + BufferSize, std::ios::beg);
+                File.seekg(CurrentOffset + BufferSize, std::fstream::beg);
             }
         }
     }

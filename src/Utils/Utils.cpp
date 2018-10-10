@@ -64,13 +64,13 @@ namespace rz4 {
             }
 
             std::map<std::string, long> umul = {
-                    { "b",  1                   },
-                    { "k",  1000                },
-                    { "kb", 1024                },
-                    { "m",  1000  * 1000        },
-                    { "mb", 1024  * 1024        },
-                    { "g",  1000L * 1000 * 1000 },
-                    { "gb", 1024L * 1024 * 1024 },
+                { "b",  1                   },
+                { "k",  1000                },
+                { "kb", 1024                },
+                { "m",  1000  * 1000        },
+                { "mb", 1024  * 1024        },
+                { "g",  1000L * 1000 * 1000 },
+                { "gb", 1024L * 1024 * 1024 },
             };
 
             auto mul = umul.find(u);
@@ -146,6 +146,92 @@ namespace rz4 {
 
         std::string PrettyTime(std::chrono::duration<double> Time) {
             return PrettyTime(static_cast<uintmax_t>(std::chrono::duration_cast<std::chrono::milliseconds>(Time).count()));
+        }
+
+        /* CRC32 (From https://gist.github.com/timepp/1f678e200d9e0f2a043a9ec6b3690635) */
+
+        void GenerateTableCRC32(uint32_t(&Table)[256]) {
+            uint32_t polynomial = 0xEDB88320;
+            for (uint32_t i = 0; i < 256; i++) {
+                uint32_t c = i;
+                for (size_t j = 0; j < 8; j++) {
+                    if (c & 1) {
+                        c = polynomial ^ (c >> 1);
+                    } else {
+                        c >>= 1;
+                    }
+                }
+
+                Table[i] = c;
+            }
+        }
+
+        uint32_t UpdateCRC32(uint32_t(&Table)[256], uint32_t Initial, const void *Buffer, size_t Length) {
+            uint32_t c = Initial ^ 0xFFFFFFFF;
+            const uint8_t* u = static_cast<const uint8_t*>(Buffer);
+            for (size_t i = 0; i < Length; ++i) {
+                c = Table[(c ^ u[i]) & 0xFF] ^ (c >> 8);
+            }
+            return c ^ 0xFFFFFFFF;
+        }
+
+        uint32_t CalculateCRC32InStream(uint32_t(&TableCRC32)[256], std::ifstream &File, uintmax_t Offset, uintmax_t Size) {
+            unsigned int BufferSize = 256 * 1024;
+            uintmax_t ReadBytes = 0;
+            std::streampos OldOffset = File.tellg();
+            File.seekg(Offset, std::fstream::beg);
+
+            if (Size < BufferSize) {
+                BufferSize = static_cast<unsigned int>(Size);
+            }
+
+            char *Buffer = new char[BufferSize];
+            uint32_t CRC32 = 0;
+
+            while (ReadBytes < Size) {
+                if ((ReadBytes + BufferSize) > Size) {
+                    BufferSize = static_cast<unsigned int>(Size - ReadBytes);
+                    delete[] Buffer;
+                    Buffer = new char[BufferSize];
+                }
+
+                File.read(Buffer, BufferSize);
+                CRC32 = UpdateCRC32(TableCRC32, CRC32, Buffer, BufferSize);
+
+                ReadBytes += BufferSize;
+            }
+
+            File.seekg(OldOffset, std::fstream::beg);
+            return CRC32;
+        }
+
+        void InjectDataFromStreamToStream(
+            std::ifstream& Src,
+            std::ofstream& Dst,
+            uintmax_t SrcOffset,
+            uintmax_t SrcSize) {
+            unsigned int BufferSize = 256 * 1024;
+            uintmax_t ReadBytes = 0;
+            Src.seekg(SrcOffset, std::fstream::beg);
+
+            if (SrcSize < BufferSize) {
+                BufferSize = static_cast<unsigned int>(SrcSize);
+            }
+
+            char *Buffer = new char[BufferSize];
+
+            while (ReadBytes < SrcSize) {
+                if ((ReadBytes + BufferSize) > SrcSize) {
+                    BufferSize = static_cast<unsigned int>(SrcSize - ReadBytes);
+                    delete[] Buffer;
+                    Buffer = new char[BufferSize];
+                }
+
+                Src.read(Buffer, BufferSize);
+                Dst.write(Buffer, BufferSize);
+
+                ReadBytes += BufferSize;
+            }
         }
     }
 }
