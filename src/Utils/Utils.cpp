@@ -145,7 +145,7 @@ namespace rz4 {
         }
 
         std::string PrettyTime(std::chrono::duration<double> Time) {
-            return PrettyTime(static_cast<uintmax_t>(std::chrono::duration<double, std::milli>(Time).count()));
+            return PrettyTime(static_cast<uintmax_t>(std::chrono::duration_cast<std::chrono::milliseconds>(Time).count()));
         }
     }
 }
