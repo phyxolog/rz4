@@ -43,26 +43,21 @@ namespace rz4 {
                 return;
             }
 
-            Types::RzfHeader Header;
-            std::memcpy(Header.Signature, Types::RzfHeaderSignature, sizeof(Types::RzfHeaderSignature));
-            Header.OriginalSize = FileSize;
-            Header.NumberOfStreams = 0;
-
-            // Reserve zero bytes to header
-            void *ZeroBytes = new char[sizeof(Types::RzfHeader)];
-            memset(ZeroBytes, 0, sizeof(Types::RzfHeader));
-            OutFile.write(reinterpret_cast<const char*>(ZeroBytes), sizeof(Types::RzfHeader));
-            OutFile.seekp(std::fstream::beg);
-
             // For calculating CRC32
             uint32_t TableCRC32[256];
             Utils::GenerateTableCRC32(TableCRC32);
 
-            // TODO: For non-compressed data
-            // TODO: We save all offsets and sizes of non-compressed data
+            Types::RzfHeader Header;
+            std::memcpy(Header.Signature, Types::RzfHeaderSignature, sizeof(Types::RzfHeaderSignature));
+            std::memcpy(Header.Version, Types::RzfHeaderVersion, sizeof(Types::RzfHeaderVersion));
+            Header.OriginalSize = FileSize;
+            Header.OriginalCRC32 = Utils::CalculateCRC32InStream(TableCRC32, File, 0, FileSize);
+            Header.NumberOfStreams = (*Options.ListOfStreams).size();
+
+            // First off, write header
+            OutFile.write(reinterpret_cast<const char*>(&Header), sizeof(Types::RzfHeader));
 
             Types::RzfCompressedStream CompressedStream;
-            uintmax_t PrevOffset = 0;
 
             for (auto Stream : *Options.ListOfStreams) {
                 // TODO: Compress data
@@ -81,27 +76,27 @@ namespace rz4 {
 
                 // TODO: Inject compressed data
                 Utils::InjectDataFromStreamToStream(File, OutFile, Stream.Offset, Stream.Size);
-
-                Header.NumberOfStreams++;
             }
 
-            /*if (PrevOffset < FileSize) {
-                NonCompressedList.push_back({ PrevOffset, FileSize - PrevOffset });
-            }*/
+            File.seekg(std::fstream::beg);
+            uintmax_t NextOffset = 0, WriteBytes = 0, RawDataSize = 0;
 
-            // Seek to begin of file and write header
-            OutFile.seekp(std::fstream::beg);
-            OutFile.write(reinterpret_cast<const char*>(&Header), sizeof(Types::RzfHeader));
-
-            // Write other non-compressed data
-            // TODO: Buffer reader & writer
-            /*OutFile.seekp(std::fstream::end);
-            for (auto NonCompressedData : NonCompressedList) {
-                char *Buffer = new char[NonCompressedData[1]];
-                File.seekg(NonCompressedData[0], std::fstream::beg);
-                File.read(Buffer, NonCompressedData[1]);
-                OutFile.write(Buffer, NonCompressedData[1]);
-            }*/
+            // TODO: Write other non-compressed data
+//            while (WriteBytes < FileSize) {
+//                for (auto Stream : *Options.ListOfStreams) {
+//                    if (NextOffset == 0) {
+//                        RawDataSize = Stream.Offset;
+//                        NextOffset = Stream.Offset + Stream.Size;
+//                        break;
+//                    } else {
+//                        // TODO
+//                    }
+//                }
+//
+//                Utils::InjectDataFromStreamToStream(File, OutFile, NextOffset, RawDataSize);
+//                WriteBytes += RawDataSize;
+//                RawDataSize = 0;
+//            }
 
             /*OutFile.close();
 

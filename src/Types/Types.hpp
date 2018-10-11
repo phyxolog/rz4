@@ -68,12 +68,15 @@ namespace rz4 {
         } CompressorOptions;
  
         const char RzfHeaderSignature[4] = { 'R', 'Z', '4', 'F' };
+        const char RzfHeaderVersion[3] = { '0', '0', '1' };
 
 #pragma pack(push, 1)
         typedef struct RzfHeader {
             char Signature[4];
+            char Version[3];
             uintmax_t OriginalSize;
-            unsigned int NumberOfStreams;
+            unsigned long NumberOfStreams;
+            uint32_t OriginalCRC32;
         } RzfHeader;
 #pragma pack(pop)
 

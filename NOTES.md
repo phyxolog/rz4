@@ -6,6 +6,8 @@ Original Size - 8 bytes
 NumberOfStreams - 4 bytes
 CompressedStreams[] -
   {
+    RawDataStartOffset - 8 bytes
+    RawDataStartSize - 8 bytes
     Type - 1 byte
     Compressor - 1 byte
     Offset - 8 bytes
