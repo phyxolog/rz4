@@ -37,6 +37,20 @@ namespace rz4 {
             Close();
         }
 
+        Types::StreamInfo *Compressor::GetRangeInStreamList(uintmax_t Offset, uintmax_t Size) {
+            for (auto Stream : *Options.ListOfStreams) {
+                if (Offset >= Stream.Offset && Size <= Stream.Size) {
+                    return &Stream;
+                }
+
+                if (Offset >= Stream.Offset && Size > Stream.Size) {
+                    return &Stream;
+                }
+            }
+
+            return nullptr;
+        }
+
         void Compressor::Start() {
             if (!File.is_open() || !OutFile.is_open()) {
                 // TODO: Handle errors
@@ -52,7 +66,7 @@ namespace rz4 {
             std::memcpy(Header.Version, Types::RzfHeaderVersion, sizeof(Types::RzfHeaderVersion));
             Header.OriginalSize = FileSize;
             Header.OriginalCRC32 = Utils::CalculateCRC32InStream(TableCRC32, File, 0, FileSize);
-            Header.NumberOfStreams = (*Options.ListOfStreams).size();
+            Header.NumberOfStreams = static_cast<unsigned long>((*Options.ListOfStreams).size());
 
             // First off, write header
             OutFile.write(reinterpret_cast<const char*>(&Header), sizeof(Types::RzfHeader));
@@ -78,25 +92,36 @@ namespace rz4 {
                 Utils::InjectDataFromStreamToStream(File, OutFile, Stream.Offset, Stream.Size);
             }
 
-            File.seekg(std::fstream::beg);
-            uintmax_t NextOffset = 0, WriteBytes = 0, RawDataSize = 0;
+            File.seekg(std::fstream::cur);
 
-            // TODO: Write other non-compressed data
-//            while (WriteBytes < FileSize) {
-//                for (auto Stream : *Options.ListOfStreams) {
-//                    if (NextOffset == 0) {
-//                        RawDataSize = Stream.Offset;
-//                        NextOffset = Stream.Offset + Stream.Size;
-//                        break;
-//                    } else {
-//                        // TODO
-//                    }
-//                }
-//
-//                Utils::InjectDataFromStreamToStream(File, OutFile, NextOffset, RawDataSize);
-//                WriteBytes += RawDataSize;
-//                RawDataSize = 0;
-//            }
+            uintmax_t WriteBytes = 0;
+
+            while (WriteBytes < FileSize) {                
+                if (WriteBytes + static_cast<uintmax_t>(BufferSize) > FileSize) {
+                    BufferSize = static_cast<unsigned int>(FileSize - WriteBytes);
+                }
+
+                Types::StreamInfo *StreamInfo = GetRangeInStreamList(WriteBytes, BufferSize);
+
+                if (StreamInfo == nullptr) {
+                    Utils::InjectDataFromStreamToStream(File, OutFile, WriteBytes, BufferSize);
+                    WriteBytes += BufferSize;
+                } else {
+                    Types::StreamInfo *StreamInfo2;
+                    uintmax_t TmpOffset = StreamInfo->Offset + StreamInfo->Size;
+                    while ((StreamInfo2 = GetRangeInStreamList(TmpOffset, BufferSize)) != nullptr) {
+                        if (TmpOffset > FileSize) {
+                            WriteBytes = FileSize;
+                            break;
+                        }
+                        
+                        Utils::InjectDataFromStreamToStream(File, OutFile, TmpOffset, StreamInfo2->Offset - StreamInfo->Offset);
+                        WriteBytes += StreamInfo2->Offset - StreamInfo->Offset;
+                        TmpOffset += BufferSize;
+                        StreamInfo = StreamInfo2;
+                    }
+                }
+            }
 
             /*OutFile.close();
 
