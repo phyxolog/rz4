@@ -24,6 +24,7 @@
 #include <string>
 #include <list>
 #include <fstream>
+#include <algorithm>
 #include <boost/filesystem.hpp>
 
 #include <Engine/Formats/RiffWave.hpp>

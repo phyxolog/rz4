@@ -93,34 +93,19 @@ namespace rz4 {
             }
 
             File.seekg(std::fstream::cur);
+            uintmax_t LastOffset = 0, Offset = 0, Size = 0;
 
-            uintmax_t WriteBytes = 0;
-
-            while (WriteBytes < FileSize) {                
-                if (WriteBytes + static_cast<uintmax_t>(BufferSize) > FileSize) {
-                    BufferSize = static_cast<unsigned int>(FileSize - WriteBytes);
+            for (auto Stream : *Options.ListOfStreams) {
+                Offset = Stream.Offset;
+                if (LastOffset == 0) {
+                    Offset = 0;
+                    Size = Stream.Offset;
+                } else if (Stream.Offset >= LastOffset) {
+                    Size = Stream.Offset - LastOffset;
                 }
 
-                Types::StreamInfo *StreamInfo = GetRangeInStreamList(WriteBytes, BufferSize);
-
-                if (StreamInfo == nullptr) {
-                    Utils::InjectDataFromStreamToStream(File, OutFile, WriteBytes, BufferSize);
-                    WriteBytes += BufferSize;
-                } else {
-                    Types::StreamInfo *StreamInfo2;
-                    uintmax_t TmpOffset = StreamInfo->Offset + StreamInfo->Size;
-                    while ((StreamInfo2 = GetRangeInStreamList(TmpOffset, BufferSize)) != nullptr) {
-                        if (TmpOffset > FileSize) {
-                            WriteBytes = FileSize;
-                            break;
-                        }
-                        
-                        Utils::InjectDataFromStreamToStream(File, OutFile, TmpOffset, StreamInfo2->Offset - StreamInfo->Offset);
-                        WriteBytes += StreamInfo2->Offset - StreamInfo->Offset;
-                        TmpOffset += BufferSize;
-                        StreamInfo = StreamInfo2;
-                    }
-                }
+                Utils::InjectDataFromStreamToStream(File, OutFile, Offset, Size);
+                LastOffset = Stream.Offset;
             }
 
             /*OutFile.close();

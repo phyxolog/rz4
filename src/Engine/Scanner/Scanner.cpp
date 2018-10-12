@@ -61,6 +61,12 @@ namespace rz4 {
                 ReadBytes += BufferSize;
             }
 
+            // Sort all found positions
+            // For fast copy non-compressed data
+            StreamList.sort([](const Types::StreamInfo &F, const Types::StreamInfo &S) {
+                return F.Offset < S.Offset;
+            });
+
             delete[] Buffer;
             return true;
         }
