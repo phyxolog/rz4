@@ -41,8 +41,6 @@ namespace rz4 {
             unsigned int BufferSize;
             uint64_t FileSize;
 
-            Types::StreamInfo *GetRangeInStreamList(uintmax_t, uintmax_t);
-
         public:
             explicit Compressor(Types::CompressorOptions);
             ~Compressor();

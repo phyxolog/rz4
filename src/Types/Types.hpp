@@ -77,6 +77,7 @@ namespace rz4 {
             uintmax_t OriginalSize;
             unsigned long NumberOfStreams;
             uint32_t OriginalCRC32;
+            uintmax_t FirstStreamOffset;
         } RzfHeader;
 #pragma pack(pop)
 
@@ -84,8 +85,9 @@ namespace rz4 {
         typedef struct RzfCompressedStream {
             unsigned char Type;
             unsigned char Compressor;
-            uintmax_t Offset;
+            uintmax_t NextCompressedStreamOffset;
             uintmax_t CompressedSize;
+            uintmax_t OriginalOffset;            
             uintmax_t OriginalSize;
             uint32_t OriginalCRC32;
             void *CompressedData;
