@@ -209,8 +209,8 @@ namespace rz4 {
             std::ifstream& Src,
             std::ofstream& Dst,
             uintmax_t SrcOffset,
-            uintmax_t SrcSize) {
-            unsigned int BufferSize = 256 * 1024;
+            uintmax_t SrcSize,
+            unsigned int BufferSize) {
             uintmax_t ReadBytes = 0;
             Src.seekg(SrcOffset, std::fstream::beg);
 
@@ -232,6 +232,42 @@ namespace rz4 {
 
                 ReadBytes += BufferSize;
             }
+        }
+
+        void ExtactDataFromStreamToFile(
+            std::ifstream& Src,
+            uintmax_t Offset,
+            uintmax_t Size,
+            std::string OutFileName,
+            unsigned int BufferSize) {
+            Src.seekg(Offset, std::fstream::beg);
+
+            if (Size < BufferSize) {
+                BufferSize = static_cast<unsigned int>(Size);
+            }
+
+            uintmax_t ReadBytes = 0;
+            char *Buffer = new char[BufferSize];
+            std::ofstream OutFile(OutFileName);
+
+            if (!OutFile.is_open()) {
+                return;
+            }
+
+            while (ReadBytes < Size) {
+                if ((ReadBytes + BufferSize) > Size) {
+                    BufferSize = static_cast<unsigned int>(Size - ReadBytes);
+                    delete[] Buffer;
+                    Buffer = new char[BufferSize];
+                }
+
+                Src.read(Buffer, BufferSize);
+                OutFile.write(Buffer, BufferSize);
+                ReadBytes += BufferSize;
+            }
+
+            delete[] Buffer;
+            OutFile.close();
         }
     }
 }

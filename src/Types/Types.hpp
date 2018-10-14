@@ -77,7 +77,7 @@ namespace rz4 {
             uintmax_t OriginalSize;
             unsigned long NumberOfStreams;
             uint32_t OriginalCRC32;
-            uintmax_t FirstStreamOffset;
+            uintmax_t FirstCompressedStreamOffset;
         } RzfHeader;
 #pragma pack(pop)
 

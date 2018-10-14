@@ -113,10 +113,7 @@ int main(int argc, char* argv[]) {
 
     PrintLogo();
 
-    // Buffer size must be greater than 0
-    if (CLIOptions.BufferSize <= 0) {
-        CLIOptions.BufferSize = BUFFER_SIZE;
-    }
+    uintmax_t FileSize = fs::file_size(CLIOptions.InFile);
 
     if (CLIOptions.InFile.empty()
         || !fs::exists(CLIOptions.InFile)) {
@@ -124,9 +121,18 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if (fs::file_size(CLIOptions.InFile) == 0) {
+    if (FileSize == 0) {
         std::cout << "[!] Input file was empty {fs::file_size == 0}!" << std::endl;
         return 1;
+    }
+
+    // Buffer size must be greater than 0
+    if (CLIOptions.BufferSize <= 0) {
+        CLIOptions.BufferSize = BUFFER_SIZE;
+    }
+    
+    if (CLIOptions.BufferSize > FileSize) {
+        CLIOptions.BufferSize = static_cast<unsigned int>(FileSize);
     }
 
     if (CLIOptions.Command == COMMAND_EXTRACT
@@ -170,14 +176,12 @@ int main(int argc, char* argv[]) {
 
     if (CLIOptions.Command == COMMAND_EXTRACT) {
         std::cout << std::endl << "-> Extract data..." << std::endl;
-           
-        rz4::Engine::Ejector *Ejector =
-            new rz4::Engine::Ejector(CLIOptions.InFile.string(), CLIOptions.BufferSize);
 
         std::list<rz4::Types::StreamInfo> *FoundStreams = Scanner->GetListOfFoundStreams();
 
         unsigned long CountOfFoundStreams = Scanner->GetCountOfFoundStreams();
         unsigned long Counter = 1;
+        std::ifstream File(CLIOptions.InFile.string(), std::fstream::binary);
 
         for (auto Stream : *FoundStreams) {
             const fs::path Path = CLIOptions.OutDir / boost::str(boost::format("%016X-%016X.%s")
@@ -185,16 +189,24 @@ int main(int argc, char* argv[]) {
                 % Stream.Size
                 % Stream.Ext);
 
-            Ejector->Extract(Stream.Offset, Stream.Size, Path.string());
+            // Extract stream
+            rz4::Utils::ExtactDataFromStreamToFile(
+                File,
+                Stream.Offset,
+                Stream.Size,
+                Path.string(),
+                CLIOptions.BufferSize
+            );
+
             std::cout << "\r" << "-> " << Counter * 100 / CountOfFoundStreams << "% completed.";
             Counter++;
         }
 
+        File.close();
+
         if (Counter > 1) {
             std::cout << std::endl;
         }
-
-        delete Ejector;
     }
 
     if (CLIOptions.Command == COMMAND_COMPRESS) {

@@ -35,11 +35,15 @@ namespace rz4 {
         long long MemToll(std::string str);
         std::string HumanizeSize(uintmax_t Bytes);
         std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix);
+
         std::string PrettyTime(uintmax_t);
         std::string PrettyTime(std::chrono::duration<double>);
+
         void GenerateTableCRC32(uint32_t(&)[256]);
         uint32_t CalculateCRC32InStream(uint32_t(&)[256], std::ifstream&, uintmax_t, uintmax_t);
-        void InjectDataFromStreamToStream(std::ifstream&, std::ofstream&, uintmax_t, uintmax_t);
+
+        void InjectDataFromStreamToStream(std::ifstream&, std::ofstream&, uintmax_t, uintmax_t, unsigned int = 256 * 1024);
+        void ExtactDataFromStreamToFile(std::ifstream&, uintmax_t, uintmax_t, std::string, unsigned int);
     }
 }
 

@@ -113,9 +113,17 @@ namespace rz4 {
                     
                     StreamInfo.FileType = Types::StreamTypes[Types::RiffWave];
                     StreamInfo.Ext = Types::StreamExts[Types::RiffWave];
-                    // Fix: get valid size of RIFF WAVE stream
-                    // StreamInfo.Size = static_cast<uintmax_t>(RiffWaveHeader->ChunkSize) + 8;
-                    StreamInfo.Size = static_cast<uintmax_t>(RiffWaveHeader->Subchunk2Size + sizeof(Engine::Formats::RiffWave::RiffWaveHeader));                    
+                    // Fixed: get valid size of RIFF WAVE stream
+                    unsigned long ChunkSize = static_cast<uintmax_t>(RiffWaveHeader->ChunkSize) + 8;
+                    unsigned long SubChunkSize = static_cast<uintmax_t>(RiffWaveHeader->Subchunk2Size
+                        + sizeof(Engine::Formats::RiffWave::RiffWaveHeader));
+                    
+                    if (ChunkSize < SubChunkSize) {
+                        StreamInfo.Size = ChunkSize;
+                    } else {
+                        StreamInfo.Size = SubChunkSize;
+                    }
+
                     StreamInfo.Offset = CurrentOffset + Index;
                     StreamInfo.Data = RiffWaveHeader;
                     
