@@ -83,15 +83,14 @@ namespace rz4 {
                         File,
                         OutFile,
                         PrevOffset,
-                        Stream.Offset - PrevOffset,
-                        BufferSize
+                        Stream.Offset - PrevOffset
                     );
                 }
 
                 // If compressed size >= stream size
                 // Write raw data
                 if (CompressedStream.CompressedSize >= Stream.Size) {
-                    Utils::InjectDataFromStreamToStream(File, OutFile, Stream.Offset, Stream.Size, BufferSize);
+                    Utils::InjectDataFromStreamToStream(File, OutFile, Stream.Offset, Stream.Size);
                     PrevOffset = Stream.Offset + Stream.Size;
                     continue;
                 }
@@ -125,7 +124,7 @@ namespace rz4 {
                 OutFile.write(reinterpret_cast<const char*>(&CompressedStream), sizeof(Types::RzfCompressedStream));
 
                 // TODO: Inject compressed data
-                Utils::InjectDataFromStreamToStream(File, OutFile, Stream.Offset, CompressedSize, BufferSize);
+                Utils::InjectDataFromStreamToStream(File, OutFile, Stream.Offset, CompressedSize);
 
                 SavedBytes += Stream.Size - CompressedSize;
                 PrevOffset = Stream.Offset + Stream.Size;
@@ -137,8 +136,7 @@ namespace rz4 {
                     File,
                     OutFile,
                     PrevOffset,
-                    FileSize - PrevOffset,
-                    BufferSize
+                    FileSize - PrevOffset
                 );
             }
 

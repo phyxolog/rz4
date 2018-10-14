@@ -42,8 +42,8 @@ namespace rz4 {
         void GenerateTableCRC32(uint32_t(&)[256]);
         uint32_t CalculateCRC32InStream(uint32_t(&)[256], std::ifstream&, uintmax_t, uintmax_t);
 
-        void InjectDataFromStreamToStream(std::ifstream&, std::ofstream&, uintmax_t, uintmax_t, unsigned int = 256 * 1024);
-        void ExtactDataFromStreamToFile(std::ifstream&, uintmax_t, uintmax_t, std::string, unsigned int = 256 * 1024);
+        void InjectDataFromStreamToStream(std::ifstream&, std::ofstream&, uintmax_t, uintmax_t);
+        void ExtactDataFromStreamToFile(std::ifstream&, uintmax_t, uintmax_t, std::string);
     }
 }
 

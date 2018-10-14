@@ -214,8 +214,8 @@ namespace rz4 {
             std::ifstream& Src,
             std::ofstream& Dst,
             uintmax_t SrcOffset,
-            uintmax_t SrcSize,
-            unsigned int BufferSize) {
+            uintmax_t SrcSize) {
+            unsigned int BufferSize = 256 * 1024;
             uintmax_t ReadBytes = 0;
             Src.seekg(SrcOffset, std::fstream::beg);
 
@@ -248,8 +248,8 @@ namespace rz4 {
             std::ifstream& Src,
             uintmax_t Offset,
             uintmax_t Size,
-            std::string OutFileName,
-            unsigned int BufferSize) {
+            std::string OutFileName) {
+            unsigned int BufferSize = 256 * 1024;
             Src.seekg(Offset, std::fstream::beg);
 
             if (Size < BufferSize) {

@@ -202,8 +202,7 @@ int main(int argc, char* argv[]) {
                 File,
                 Stream.Offset,
                 Stream.Size,
-                Path.string(),
-                CLIOptions.BufferSize
+                Path.string()
             );
 
             std::cout
