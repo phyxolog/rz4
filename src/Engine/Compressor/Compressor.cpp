@@ -59,14 +59,13 @@ namespace rz4 {
             OutFile.write(reinterpret_cast<const char*>(&Header), sizeof(Types::RzfHeader));
 
             Types::RzfCompressedStream CompressedStream;
-            uintmax_t PrevOffset = 0, PrevCompressedSize = 0, i = 1;
-            std::list<Types::StreamInfo> UnPtrListOfStreams = *Options.ListOfStreams;
+            uintmax_t PrevOffset = 0, i = 1, SavedBytes = 0;
+            std::list<Types::StreamInfo> DerListOfStreams = *Options.ListOfStreams;
 
-            for (auto StreamIterator = UnPtrListOfStreams.begin(); StreamIterator != UnPtrListOfStreams.end(); StreamIterator++) {
+            for (auto StreamIterator = DerListOfStreams.begin(); StreamIterator != DerListOfStreams.end(); StreamIterator++, i++) {
                 Types::StreamInfo Stream = *StreamIterator;
                 // TODO: Compress data
                 // TODO: Select compressor
-                // TODO: Check, if compressedsize >= streamsize - write raw data
                 // TODO: Compressed stream types
 
                 uintmax_t CompressedSize = Stream.Size - 20;
@@ -74,21 +73,37 @@ namespace rz4 {
                 CompressedStream.Compressor = 0x1;
                 CompressedStream.CompressedSize = CompressedSize;
 
+                // Write non-compressed data
+                if (Stream.Offset > PrevOffset) {
+                    Utils::InjectDataFromStreamToStream(File, OutFile, PrevOffset, Stream.Offset - PrevOffset);
+                }
+
+                // If compressed size >= stream size
+                // Write raw data
+                if (CompressedStream.CompressedSize >= Stream.Size) {
+                    Utils::InjectDataFromStreamToStream(File, OutFile, Stream.Offset, Stream.Size);
+                    PrevOffset = Stream.Offset + Stream.Size;
+                    continue;
+                }
+
                 auto NextStreamIterator = std::next(StreamIterator, 1);
-                if (NextStreamIterator != UnPtrListOfStreams.end()) {
-                    if (i > 1) {
-                        auto PrevStreamIterator = std::prev(StreamIterator, 1);
-                        // TODO
-                        CompressedStream.NextCompressedStreamOffset = 24;
-                    }
-                    else {
+                if (NextStreamIterator != DerListOfStreams.end()) {
+                    if (i > 1) {             
                         CompressedStream.NextCompressedStreamOffset =
-                            (sizeof(Types::RzfHeader) + (*NextStreamIterator).Offset)
+                            sizeof(Types::RzfHeader)
+                            + (*NextStreamIterator).Offset
+                            - SavedBytes
+                            + sizeof(Types::RzfCompressedStream)
+                            + ((i - 1) * sizeof(Types::RzfCompressedStream))
+                            - (Stream.Size - CompressedSize);
+                    } else {
+                        CompressedStream.NextCompressedStreamOffset =
+                            sizeof(Types::RzfHeader)
+                            + (*NextStreamIterator).Offset
                             + sizeof(Types::RzfCompressedStream)
                             - (Stream.Size - CompressedSize);
                     }
-                }
-                else {
+                } else {
                     CompressedStream.NextCompressedStreamOffset = -1;
                 }
                 CompressedStream.OriginalOffset = Stream.Offset;
@@ -96,19 +111,13 @@ namespace rz4 {
                 CompressedStream.OriginalCRC32 =
                     Utils::CalculateCRC32InStream(TableCRC32, File, Stream.Offset, Stream.Size);
 
-                // Write non-compressed data
-                if (Stream.Offset > PrevOffset) {
-                    Utils::InjectDataFromStreamToStream(File, OutFile, PrevOffset, Stream.Offset - PrevOffset);
-                }
-
                 OutFile.write(reinterpret_cast<const char*>(&CompressedStream), sizeof(Types::RzfCompressedStream));
 
                 // TODO: Inject compressed data
                 Utils::InjectDataFromStreamToStream(File, OutFile, Stream.Offset, CompressedSize);
 
+                SavedBytes += Stream.Size - CompressedSize;
                 PrevOffset = Stream.Offset + Stream.Size;
-                PrevCompressedSize = CompressedStream.CompressedSize;
-                i++;
             }
 
             // Write other non-compressed data
@@ -123,16 +132,21 @@ namespace rz4 {
             std::ifstream tmpf;
             tmpf.open(Options.OutFile.string(), std::fstream::binary);
             tmpf.read(reinterpret_cast<char*>(&ReadHeader), sizeof(Types::RzfHeader));
-            tmpf.seekg(ReadHeader.FirstStreamOffset);
+            tmpf.seekg(ReadHeader.FirstStreamOffset);          
 
-            tmpf.read(reinterpret_cast<char*>(&ReadCS), sizeof(Types::RzfCompressedStream));*/
+            tmpf.read(reinterpret_cast<char*>(&ReadCS), sizeof(Types::RzfCompressedStream));
 
-            /*tmpf.seekg(ReadCS.NextCompressedStreamOffset);
-            tmpf.read(reinterpret_cast<char*>(&ReadCS), sizeof(Types::RzfCompressedStream));*/
+            tmpf.seekg(ReadCS.NextCompressedStreamOffset);
+            tmpf.read(reinterpret_cast<char*>(&ReadCS), sizeof(Types::RzfCompressedStream));
 
-            //std::cout << ReadCS.NextCompressedStreamOffset << std::endl;
+            std::cout << ReadCS.NextCompressedStreamOffset << std::endl;
 
-            /*tmpf.seekg(ReadCS.NextCompressedStreamOffset);
+            tmpf.seekg(ReadCS.NextCompressedStreamOffset);
+            tmpf.read(reinterpret_cast<char*>(&ReadCS), sizeof(Types::RzfCompressedStream));
+
+            std::cout << ReadCS.NextCompressedStreamOffset << std::endl;
+
+            tmpf.seekg(ReadCS.NextCompressedStreamOffset);
             tmpf.read(reinterpret_cast<char*>(&ReadCS), sizeof(Types::RzfCompressedStream));
 
             std::cout << ReadCS.NextCompressedStreamOffset << std::endl;*/

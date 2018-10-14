@@ -26,21 +26,23 @@ namespace rz4 {
     namespace Engine {
         namespace Formats {
             namespace RiffWave {
+#pragma pack(push, 1)
                 typedef struct RiffWaveHeader {
-                    char  RiffHeader[4]; /* RIFF */
-                    int   WavSize;       /* File size = `wav_size` + 8 */
-                    char  WaveHeader[4]; /* WAVE */
-                    char  FmtHeader[4];
-                    int   FmtChunkSize;
-                    short AudioFormat;
-                    short NumChannels;
-                    int   SampleRate;
-                    int   ByteRate;
-                    short SampleAlignment;
-                    short BitDepth;
-                    char  DataHeader[4];
-                    int   DataBytes;
+                    char ChunkId[4]; /* RIFF */
+                    unsigned long ChunkSize;       /* File size = `wav_size` + 8 */
+                    char Format[4]; /* WAVE */
+                    char Subchunk1Id[4];
+                    unsigned long Subchunk1Size;
+                    unsigned short AudioFormat;
+                    unsigned short NumChannels;
+                    unsigned long SampleRate;
+                    unsigned long ByteRate;
+                    unsigned short BlockAlign;
+                    unsigned short BitsPerSample;
+                    char Subchunk2Id[4];
+                    unsigned long Subchunk2Size;
                 } RiffWaveHeader;
+#pragma pack(pop)
 
                 bool IsRiffWaveHeader(const char *);
             }
