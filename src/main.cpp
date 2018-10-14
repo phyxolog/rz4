@@ -150,6 +150,11 @@ int main(int argc, char* argv[]) {
         << rz4::Utils::HumanizeSize(CLIOptions.BufferSize)
         << std::endl;
 
+    // Init all boost format templates
+    boost::format FoundStreamFormat("--> Found %s @ 0x%016X (%s)");
+    boost::format ExtractStreamFormat("%016X-%016X.%s");
+    boost::format ExtractPercentFormat("%i%% completed (%i / %i streams processed)");
+
     rz4::Types::ScannerOptions ScannerOptions;
     ScannerOptions.FileName = CLIOptions.InFile;
     ScannerOptions.BufferSize = CLIOptions.BufferSize;
@@ -158,12 +163,12 @@ int main(int argc, char* argv[]) {
     auto StartTime = std::chrono::high_resolution_clock::now();
     auto StartScanTime = std::chrono::high_resolution_clock::now();
     rz4::Engine::Scanner *Scanner = new rz4::Engine::Scanner(ScannerOptions);  
-    rz4::Types::ScannerCallbackHandle Callback = [](rz4::Types::StreamInfo *Stream) {
+    rz4::Types::ScannerCallbackHandle Callback = [&](rz4::Types::StreamInfo *Stream) {
         std::cout
-            << boost::format("--> Found %s @ 0x%016X (%s)")
-            % Stream->FileType
-            % Stream->Offset
-            % rz4::Utils::HumanizeSize(Stream->Size)
+            << FoundStreamFormat
+                % Stream->FileType
+                % Stream->Offset
+                % rz4::Utils::HumanizeSize(Stream->Size)
             << std::endl;
     };
 
@@ -175,16 +180,19 @@ int main(int argc, char* argv[]) {
     auto EndScanTime = std::chrono::high_resolution_clock::now();
 
     if (CLIOptions.Command == COMMAND_EXTRACT) {
-        std::cout << std::endl << "-> Extract data..." << std::endl;
-
         std::list<rz4::Types::StreamInfo> *FoundStreams = Scanner->GetListOfFoundStreams();
 
-        unsigned long CountOfFoundStreams = Scanner->GetCountOfFoundStreams();
-        unsigned long Counter = 1;
+        uintmax_t
+            SizeOfFoundStreams = Scanner->GetSizeOfFoundStreams(),
+            CountOfFoundStreams = Scanner->GetCountOfFoundStreams(),
+            Counter = 1, CounterSize = 0;
         std::ifstream File(CLIOptions.InFile.string(), std::fstream::binary);
 
+        if (CountOfFoundStreams > 0) std::cout << std::endl;
+        std::cout << "-> Extract data..." << std::endl;
+
         for (auto Stream : *FoundStreams) {
-            const fs::path Path = CLIOptions.OutDir / boost::str(boost::format("%016X-%016X.%s")
+            const fs::path Path = CLIOptions.OutDir / boost::str(ExtractStreamFormat
                 % Stream.Offset
                 % Stream.Size
                 % Stream.Ext);
@@ -198,7 +206,14 @@ int main(int argc, char* argv[]) {
                 CLIOptions.BufferSize
             );
 
-            std::cout << "\r" << "-> " << Counter * 100 / CountOfFoundStreams << "% completed.";
+            std::cout
+                << "\r" << "-> "
+                << ExtractPercentFormat
+                    % (Counter == CountOfFoundStreams ? 100 : (CounterSize * 100 / SizeOfFoundStreams))
+                    % Counter
+                    % CountOfFoundStreams;
+
+            CounterSize += Stream.Size;
             Counter++;
         }
 
