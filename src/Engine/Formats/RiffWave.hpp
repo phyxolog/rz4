@@ -28,9 +28,9 @@ namespace rz4 {
             namespace RiffWave {
 #pragma pack(push, 1)
                 typedef struct RiffWaveHeader {
-                    char ChunkId[4]; /* RIFF */
-                    unsigned long ChunkSize;       /* File size = `wav_size` + 8 */
-                    char Format[4]; /* WAVE */
+                    char ChunkId[4];
+                    unsigned long ChunkSize;
+                    char Format[4];
                     char Subchunk1Id[4];
                     unsigned long Subchunk1Size;
                     unsigned short AudioFormat;
