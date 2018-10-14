@@ -99,7 +99,7 @@ namespace rz4 {
         }
 
         /*
-        * Convert ms to human-oriented time string
+        * Convert ms to human-oriented time string.
         */
         std::string PrettyTime(uintmax_t Time) {
             const int Size = 4;
@@ -205,6 +205,11 @@ namespace rz4 {
             return CRC32;
         }
 
+        /*
+        * Inject data from input stream to output.
+        * Inject by source offset and size to current position
+        * in dest stream.
+        */
         void InjectDataFromStreamToStream(
             std::ifstream& Src,
             std::ofstream& Dst,
@@ -234,6 +239,11 @@ namespace rz4 {
             }
         }
 
+        /*
+        * Extract data from input stream to file.
+        * By transmitted offset and size copy data from src-stream
+        * and write to out file.
+        */
         void ExtactDataFromStreamToFile(
             std::ifstream& Src,
             uintmax_t Offset,
