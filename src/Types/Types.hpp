@@ -90,7 +90,6 @@ namespace rz4 {
             uintmax_t OriginalOffset;            
             uintmax_t OriginalSize;
             uint32_t OriginalCRC32;
-            void *CompressedData;
         } RzfCompressedStream;
 #pragma pack(pop)
     }
