@@ -153,7 +153,8 @@ int main(int argc, char* argv[]) {
     // Init all boost format templates
     boost::format FoundStreamFormat("--> Found %s @ 0x%016X (%s)");
     boost::format ExtractStreamFormat("%016X-%016X.%s");
-    boost::format ExtractPercentFormat("%i%% completed (%i / %i streams processed)");
+    boost::format ExtractPercentFormat("\r-> %i%% completed (%i / %i streams processed)");
+    boost::format StatSizeFormat("-> Size of found media streams: %s (%i bytes)");
 
     rz4::Types::ScannerOptions ScannerOptions;
     ScannerOptions.FileName = CLIOptions.InFile;
@@ -206,7 +207,6 @@ int main(int argc, char* argv[]) {
             );
 
             std::cout
-                << "\r" << "-> "
                 << ExtractPercentFormat
                     % (Counter == CountOfFoundStreams ? 100 : (CounterSize * 100 / SizeOfFoundStreams))
                     % Counter
@@ -274,12 +274,10 @@ int main(int argc, char* argv[]) {
     std::cout << "-> Process time: " << rz4::Utils::PrettyTime(DiffTime) << std::endl;
 
     std::cout << "-> Found media streams: " << Scanner->GetCountOfFoundStreams() << std::endl;
-    std::cout
-        << "-> Size of found media streams: "
-        << rz4::Utils::HumanizeSize(Scanner->GetSizeOfFoundStreams())
-        << " ("
-        << Scanner->GetSizeOfFoundStreams()
-        << " bytes)"
+    std::cout <<
+        StatSizeFormat
+            % rz4::Utils::HumanizeSize(Scanner->GetSizeOfFoundStreams())
+            % Scanner->GetSizeOfFoundStreams()
         << std::endl;
 
     return 0;
