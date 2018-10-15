@@ -26,6 +26,8 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 
+#include <WavPack/include/wavpack.h>
+
 #include <Types/Types.hpp>
 #include <Utils/Utils.hpp>
 
@@ -44,6 +46,8 @@ namespace rz4 {
         public:
             explicit Compressor(Types::CompressorOptions);
             ~Compressor();
+
+            void WavPackEncoder(uintmax_t, uintmax_t);
 
             void Start();
             void Close();

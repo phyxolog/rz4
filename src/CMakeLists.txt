@@ -5,7 +5,12 @@ set (Boost_USE_MULTITHREADED ON)
 
 find_package(Boost 1.40 COMPONENTS program_options filesystem REQUIRED)
 
-include_directories(${Boost_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(
+    ${Boost_INCLUDE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/..
+)
 
 add_executable(
         rz4
