@@ -27,20 +27,24 @@
 #include <cmath>
 #include <chrono>
 #include <fstream>
+#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
-#include <boost/crc.hpp>
 
 namespace rz4 {
     namespace Utils {
+        namespace fs = boost::filesystem;
+
         int CharMatch(const char *Buffer, unsigned int BufferSize, char Needle, unsigned int Offset = 0);
         long long MemToll(std::string str);
         std::string HumanizeSize(uintmax_t Bytes);
         std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix);
+        std::string GenerateTmpFileName(const std::string&);
 
         std::string PrettyTime(uintmax_t);
         std::string PrettyTime(std::chrono::duration<double>);
 
-        uint32_t CalculateCRC32InStream(std::ifstream&, uintmax_t, uintmax_t);
+        void GenerateTableCRC32(uint32_t(&)[256]);
+        uint32_t CalculateCRC32InStream(uint32_t(&)[256], std::ifstream&, uintmax_t, uintmax_t);
 
         void InjectDataFromStreamToStream(std::ifstream&, std::ofstream&, uintmax_t, uintmax_t);
         void ExtactDataFromStreamToFile(std::ifstream&, uintmax_t, uintmax_t, std::string);

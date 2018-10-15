@@ -18,6 +18,7 @@
 */
 
 #include "Utils.hpp"
+#include "stdafx.hpp"
 
 namespace rz4 {
     namespace Utils {
@@ -98,6 +99,23 @@ namespace rz4 {
             return std::string(FirstPrefix + "_" + SecondPrefix + "_" + std::to_string(std::chrono::seconds(std::time(nullptr)).count()));
         }
 
+        std::string GenerateTmpFileName(const std::string &Path) {
+            std::string Mask = "~temp%09d.dat";
+            fs::path FullPath, Temp;
+            int i = 1;
+
+            while (true) {
+                Temp = boost::str(boost::format(Mask) % i);
+                FullPath = Path / Temp;
+                if (!fs::exists(FullPath)) {
+                    return FullPath.string();
+                }
+                i++;
+            }
+
+            
+        }
+
         /*
         * Convert ms to human-oriented time string.
         */
@@ -148,8 +166,36 @@ namespace rz4 {
             return PrettyTime(static_cast<uintmax_t>(std::chrono::duration_cast<std::chrono::milliseconds>(Time).count()));
         }
 
-        uint32_t CalculateCRC32InStream(std::ifstream &File, uintmax_t Offset, uintmax_t Size) {
-            unsigned int BufferSize = 256 * 1024;
+        /* CRC32 (From https://gist.github.com/timepp/1f678e200d9e0f2a043a9ec6b3690635) */
+
+        void GenerateTableCRC32(uint32_t(&Table)[256]) {
+            uint32_t polynomial = 0xEDB88320;
+            for (uint32_t i = 0; i < 256; i++) {
+                uint32_t c = i;
+                for (size_t j = 0; j < 8; j++) {
+                    if (c & 1) {
+                        c = polynomial ^ (c >> 1);
+                    }
+                    else {
+                        c >>= 1;
+                    }
+                }
+
+                Table[i] = c;
+            }
+        }
+
+        uint32_t UpdateCRC32(uint32_t(&Table)[256], uint32_t Initial, const void *Buffer, size_t Length) {
+            uint32_t c = Initial ^ 0xFFFFFFFF;
+            const uint8_t* u = static_cast<const uint8_t*>(Buffer);
+            for (size_t i = 0; i < Length; ++i) {
+                c = Table[(c ^ u[i]) & 0xFF] ^ (c >> 8);
+            }
+            return c ^ 0xFFFFFFFF;
+        }
+
+        uint32_t CalculateCRC32InStream(uint32_t(&TableCRC32)[256], std::ifstream &File, uintmax_t Offset, uintmax_t Size) {
+            unsigned int BufferSize = 16 * 1024 * 1024;
             uintmax_t ReadBytes = 0;
             std::streampos OldOffset = File.tellg();
             File.seekg(Offset, std::fstream::beg);
@@ -159,7 +205,7 @@ namespace rz4 {
             }
 
             char *Buffer = new char[BufferSize];
-            boost::crc_32_type CRC32Buffer;
+            uint32_t CRC32 = 0;
 
             while (ReadBytes < Size) {
                 if ((ReadBytes + BufferSize) > Size) {
@@ -169,13 +215,13 @@ namespace rz4 {
                 }
 
                 File.read(Buffer, BufferSize);
-                CRC32Buffer.process_bytes(Buffer, BufferSize);
+                CRC32 = UpdateCRC32(TableCRC32, CRC32, Buffer, BufferSize);
 
                 ReadBytes += BufferSize;
             }
 
             File.seekg(OldOffset, std::fstream::beg);
-            return CRC32Buffer.checksum();
+            return CRC32;
         }
 
         /*

@@ -18,6 +18,7 @@
 */
 
 #include "Compressor.hpp"
+#include "stdafx.hpp"
 
 namespace rz4 {
     namespace Engine {
@@ -43,11 +44,15 @@ namespace rz4 {
                 return;
             }
 
+            // For calculating CRC32
+            uint32_t TableCRC32[256];
+            Utils::GenerateTableCRC32(TableCRC32);
+
             Types::RzfHeader Header;
             std::memcpy(Header.Signature, Types::RzfHeaderSignature, sizeof(Types::RzfHeaderSignature));
             std::memcpy(Header.Version, Types::RzfHeaderVersion, sizeof(Types::RzfHeaderVersion));
             Header.OriginalSize = FileSize;
-            Header.OriginalCRC32 = Utils::CalculateCRC32InStream(File, 0, FileSize);
+            Header.OriginalCRC32 = Utils::CalculateCRC32InStream(TableCRC32, File, 0, FileSize);
             Header.NumberOfStreams = static_cast<unsigned long>(Options.ListOfStreams->size());
             Header.FirstCompressedStreamOffset = -1;
 
@@ -58,20 +63,14 @@ namespace rz4 {
             uintmax_t PrevOffset = 0, i = 0, SavedBytes = 0;
             std::list<Types::StreamInfo> DerListOfStreams = *Options.ListOfStreams;
             Types::StreamInfo Stream;
+            std::ifstream CompressFileStream;
+            fs::path ComressFileName;
 
             for (auto StreamIterator = DerListOfStreams.begin();
                 StreamIterator != DerListOfStreams.end();
                 StreamIterator++, i++) {
 
                 Stream = *StreamIterator;
-                // TODO: Compress data
-                // TODO: Select compressor
-                // TODO: Compressed stream types
-
-                uintmax_t CompressedSize = Stream.Size - 20;
-                CompressedStream.Type = 0x1;
-                CompressedStream.Compressor = 0x1;
-                CompressedStream.CompressedSize = CompressedSize;
 
                 // Write non-compressed data
                 if (Stream.Offset > PrevOffset) {
@@ -82,6 +81,8 @@ namespace rz4 {
                         Stream.Offset - PrevOffset
                     );
                 }
+
+                CompressStream(Stream, CompressedStream, CompressFileStream, ComressFileName);
 
                 // If compressed size >= stream size
                 // Write raw data
@@ -99,7 +100,7 @@ namespace rz4 {
                             sizeof(Types::RzfHeader)
                             + (*NextStreamIterator).Offset
                             + sizeof(Types::RzfCompressedStream)
-                            - (Stream.Size - CompressedSize)
+                            - (Stream.Size - CompressedStream.CompressedSize)
                             + (i * sizeof(Types::RzfCompressedStream))
                             - SavedBytes;
                     } else {
@@ -107,7 +108,7 @@ namespace rz4 {
                             sizeof(Types::RzfHeader)
                             + (*NextStreamIterator).Offset
                             + sizeof(Types::RzfCompressedStream)
-                            - (Stream.Size - CompressedSize);
+                            - (Stream.Size - CompressedStream.CompressedSize);
                     }
                 } else {
                     CompressedStream.NextCompressedStreamOffset = -1;
@@ -115,14 +116,21 @@ namespace rz4 {
                 CompressedStream.OriginalOffset = Stream.Offset;
                 CompressedStream.OriginalSize = Stream.Size;
                 CompressedStream.OriginalCRC32 =
-                    Utils::CalculateCRC32InStream(File, Stream.Offset, Stream.Size);
+                    Utils::CalculateCRC32InStream(TableCRC32, File, Stream.Offset, Stream.Size);
 
                 OutFile.write(reinterpret_cast<const char*>(&CompressedStream), sizeof(Types::RzfCompressedStream));
 
-                // TODO: Inject compressed data
-                Utils::InjectDataFromStreamToStream(File, OutFile, Stream.Offset, CompressedSize);
+                Utils::InjectDataFromStreamToStream(
+                    CompressFileStream,
+                    OutFile,
+                    Stream.Offset,
+                    CompressedStream.CompressedSize
+                );
 
-                SavedBytes += Stream.Size - CompressedSize;
+                CompressFileStream.close();
+                fs::remove(ComressFileName);
+                
+                SavedBytes += Stream.Size - CompressedStream.CompressedSize;
                 PrevOffset = Stream.Offset + Stream.Size;
             }
 
@@ -146,6 +154,47 @@ namespace rz4 {
             // Write header
             OutFile.seekp(std::fstream::beg);
             OutFile.write(reinterpret_cast<const char*>(&Header), sizeof(Types::RzfHeader));
+        }
+
+        void Compressor::CompressStream(
+            Types::StreamInfo &Stream,
+            Types::RzfCompressedStream &CompressedStream,
+            std::ifstream &CompressFileStream,
+            fs::path &ComressFileName) {
+            fs::path TempFileName = Utils::GenerateTmpFileName(fs::current_path().string());
+            Utils::ExtactDataFromStreamToFile(File, Stream.Offset, Stream.Size, TempFileName.string());
+            fs::path OutFileName = TempFileName.filename().replace_extension(".enc");
+
+            // TODO: Select compressor
+            CompressedStream.Type = 0x1;
+            CompressedStream.Compressor = 0x1;
+
+            ComressFileName = OutFileName;
+
+            if (CompressFileStream.is_open()) {
+                CompressFileStream.close();
+                fs::remove(OutFileName);
+            }
+
+            if (WavpackCompress(TempFileName, OutFileName)) {                
+                CompressFileStream.open(OutFileName.string(), std::fstream::binary);
+                CompressedStream.CompressedSize = fs::file_size(OutFileName);
+            } else {
+                CompressedStream.CompressedSize = Stream.Size;
+            }
+
+            fs::remove(TempFileName);
+        }
+
+        bool Compressor::WavpackCompress(fs::path InputFile, fs::path OutputFile) {
+            bp::ipstream Pipe;
+#if _WIN64
+            bp::child process(bp::search_path("packers/wavpack_x64.exe"), "-h", InputFile, OutputFile);
+#else
+            bp::child process(bp::search_path("packers/wavpack_x32.exe"), "-h", InputFile, OutputFile);
+#endif
+            process.wait();
+            return process.exit_code() == 0;
         }
 
         void Compressor::Close() {

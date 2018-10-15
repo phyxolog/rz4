@@ -25,15 +25,16 @@
 #include <list>
 #include <vector>
 #include <boost/filesystem.hpp>
+#include <boost/process.hpp>
+#include <boost/process/windows.hpp>
 
-#include <WavPack/include/wavpack.h>
-
-#include <Types/Types.hpp>
-#include <Utils/Utils.hpp>
+#include "Types/Types.hpp"
+#include "Utils/Utils.hpp"
 
 namespace rz4 {
     namespace Engine {
         namespace fs = boost::filesystem;
+        namespace bp = boost::process;
 
         class Compressor {
         private:
@@ -47,7 +48,8 @@ namespace rz4 {
             explicit Compressor(Types::CompressorOptions);
             ~Compressor();
 
-            void WavPackEncoder(uintmax_t, uintmax_t);
+            void CompressStream(Types::StreamInfo&, Types::RzfCompressedStream&, std::ifstream&, fs::path&);
+            bool WavpackCompress(fs::path, fs::path);
 
             void Start();
             void Close();

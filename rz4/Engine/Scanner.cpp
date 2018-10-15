@@ -18,6 +18,7 @@
 */
 
 #include "Scanner.hpp"
+#include "stdafx.hpp"
 
 namespace rz4 {
     namespace Engine {

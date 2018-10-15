@@ -27,9 +27,9 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 
-#include <Engine/Formats/RiffWave.hpp>
-#include <Types/Types.hpp>
-#include <Utils/Utils.hpp>
+#include "Engine/Formats/RiffWave.hpp"
+#include "Types/Types.hpp"
+#include "Utils/Utils.hpp"
 
 namespace rz4 {
     namespace Engine {

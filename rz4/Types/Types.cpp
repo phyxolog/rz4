@@ -18,6 +18,7 @@
 */
 
 #include "Types.hpp"
+#include "stdafx.hpp"
 
 namespace rz4 {
     namespace Types {
