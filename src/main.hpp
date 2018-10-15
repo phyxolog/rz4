@@ -25,8 +25,8 @@
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 
-#include "Engine/Scanner/Scanner.hpp"
-#include "Engine/Compressor/Compressor.hpp"
+#include "Engine/Scanner.hpp"
+#include "Engine/Compressor.hpp"
 #include "Utils/Utils.hpp"
 #include "Types/Types.hpp"
 

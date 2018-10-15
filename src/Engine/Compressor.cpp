@@ -43,15 +43,11 @@ namespace rz4 {
                 return;
             }
 
-            // For calculating CRC32
-            uint32_t TableCRC32[256];
-            Utils::GenerateTableCRC32(TableCRC32);
-
             Types::RzfHeader Header;
             std::memcpy(Header.Signature, Types::RzfHeaderSignature, sizeof(Types::RzfHeaderSignature));
             std::memcpy(Header.Version, Types::RzfHeaderVersion, sizeof(Types::RzfHeaderVersion));
             Header.OriginalSize = FileSize;
-            Header.OriginalCRC32 = Utils::CalculateCRC32InStream(TableCRC32, File, 0, FileSize);
+            Header.OriginalCRC32 = Utils::CalculateCRC32InStream(File, 0, FileSize);
             Header.NumberOfStreams = static_cast<unsigned long>(Options.ListOfStreams->size());
             Header.FirstCompressedStreamOffset = -1;
 
@@ -119,7 +115,7 @@ namespace rz4 {
                 CompressedStream.OriginalOffset = Stream.Offset;
                 CompressedStream.OriginalSize = Stream.Size;
                 CompressedStream.OriginalCRC32 =
-                    Utils::CalculateCRC32InStream(TableCRC32, File, Stream.Offset, Stream.Size);
+                    Utils::CalculateCRC32InStream(File, Stream.Offset, Stream.Size);
 
                 OutFile.write(reinterpret_cast<const char*>(&CompressedStream), sizeof(Types::RzfCompressedStream));
 
