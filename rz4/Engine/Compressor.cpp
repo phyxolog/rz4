@@ -113,6 +113,7 @@ namespace rz4 {
                 } else {
                     CompressedStream.NextCompressedStreamOffset = -1;
                 }
+                CompressedStream.Type = Stream.Type;
                 CompressedStream.OriginalOffset = Stream.Offset;
                 CompressedStream.OriginalSize = Stream.Size;
                 CompressedStream.OriginalCRC32 =
@@ -161,22 +162,51 @@ namespace rz4 {
             Types::RzfCompressedStream &CompressedStream,
             std::ifstream &CompressFileStream,
             fs::path &ComressFileName) {
-            fs::path TempFileName = Utils::GenerateTmpFileName(fs::current_path().string());
+            fs::path TempFileName = Utils::GenerateTmpFileName(fs::current_path().string(), ".wav");
             Utils::ExtactDataFromStreamToFile(File, Stream.Offset, Stream.Size, TempFileName.string());
-            fs::path OutFileName = TempFileName.filename().replace_extension(".enc");
+            fs::path OutFileName = TempFileName.filename();
+            bool Result = false;
 
-            // TODO: Select compressor
-            CompressedStream.Type = 0x1;
-            CompressedStream.Compressor = 0x1;
+            // Select compressor
+            switch (Stream.Type) {
+            case Types::RiffWave:
+                // Fix size in header (RIFF WAVE)
+                /*Engine::Formats::RiffWave::FixRiffWaveHeaderInFile(
+                    TempFileName.string(),
+                    reinterpret_cast<Engine::Formats::RiffWave::RiffWaveHeader*>(Stream.Data)
+                );*/
+
+                if (Options.TakCompLevel > 0) {
+                    CompressedStream.Compressor = Types::TakCompressor;
+                    OutFileName = OutFileName.replace_extension(".tak");
+                } else if (Options.WavPackCompLevel > 0) {
+                    CompressedStream.Compressor = Types::WavPackCompressor;
+                    OutFileName = OutFileName.replace_extension(".wv");
+                }
+
+                break;
+            default:
+                break;
+            }
 
             ComressFileName = OutFileName;
-
             if (CompressFileStream.is_open()) {
                 CompressFileStream.close();
                 fs::remove(OutFileName);
             }
 
-            if (WavpackCompress(TempFileName, OutFileName)) {                
+            switch (CompressedStream.Compressor) {
+            case Types::TakCompressor:
+                Result = TakCompress(TempFileName, OutFileName, Options.TakCompLevel);
+                break;
+            case Types::WavPackCompressor:
+                Result = WavpackCompress(TempFileName, OutFileName, Options.WavPackCompLevel);
+                break;
+            default:
+                break;
+            }
+
+            if (Result) {
                 CompressFileStream.open(OutFileName.string(), std::fstream::binary);
                 CompressedStream.CompressedSize = fs::file_size(OutFileName);
             } else {
@@ -186,13 +216,20 @@ namespace rz4 {
             fs::remove(TempFileName);
         }
 
-        bool Compressor::WavpackCompress(fs::path InputFile, fs::path OutputFile) {
+        bool Compressor::WavpackCompress(fs::path InputFile, fs::path OutputFile, unsigned short Level) {
             bp::ipstream Pipe;
 #if _WIN64
             bp::child process(bp::search_path("packers/wavpack_x64.exe"), "-h", InputFile, OutputFile);
 #else
             bp::child process(bp::search_path("packers/wavpack_x32.exe"), "-h", InputFile, OutputFile);
 #endif
+            process.wait();
+            return process.exit_code() == 0;
+        }
+
+        bool Compressor::TakCompress(fs::path InputFile, fs::path OutputFile, unsigned short Level) {
+            bp::ipstream Pipe;
+            bp::child process(bp::search_path("packers/tak.exe"), "-e", "-overwrite", "-wm0", "-tn4", "-p4m", InputFile, OutputFile);
             process.wait();
             return process.exit_code() == 0;
         }

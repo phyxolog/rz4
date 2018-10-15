@@ -99,8 +99,8 @@ namespace rz4 {
             return std::string(FirstPrefix + "_" + SecondPrefix + "_" + std::to_string(std::chrono::seconds(std::time(nullptr)).count()));
         }
 
-        std::string GenerateTmpFileName(const std::string &Path) {
-            std::string Mask = "~temp%09d.dat";
+        std::string GenerateTmpFileName(const std::string &Path, std::string Ext) {
+            std::string Mask = "~temp%09d" + Ext;
             fs::path FullPath, Temp;
             int i = 1;
 

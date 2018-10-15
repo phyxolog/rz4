@@ -38,7 +38,7 @@ namespace rz4 {
         long long MemToll(std::string str);
         std::string HumanizeSize(uintmax_t Bytes);
         std::string GenerateUniqueFolderName(std::string FirstPrefix, std::string SecondPrefix);
-        std::string GenerateTmpFileName(const std::string&);
+        std::string GenerateTmpFileName(const std::string&, std::string = ".dat");
 
         std::string PrettyTime(uintmax_t);
         std::string PrettyTime(std::chrono::duration<double>);

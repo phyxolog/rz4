@@ -27,6 +27,24 @@ namespace rz4 {
                 bool IsRiffWaveHeader(const char *Header) {
                     return std::memcmp(Header, "RIFF", 4) == 0 && std::memcmp(Header + 8, "WAVE", 4) == 0;
                 }
+
+                void FixRiffWaveHeader(RiffWaveHeader *RWHeader) {
+                    unsigned long ChunkSize = RWHeader->ChunkSize + 8;
+                    unsigned long SubChunkSize = RWHeader->Subchunk2Size + sizeof(RiffWaveHeader);
+
+                    if (ChunkSize < SubChunkSize) {
+                        RWHeader->ChunkSize = ChunkSize;
+                    } else {
+                        RWHeader->ChunkSize = SubChunkSize;
+                    }
+                }
+
+                void FixRiffWaveHeaderInFile(std::string FileName, RiffWaveHeader *RWHeader) {
+                    FixRiffWaveHeader(RWHeader);
+                    std::ofstream TempFile(FileName, std::fstream::binary | std::fstream::app);
+                    TempFile.write(reinterpret_cast<const char*>(RWHeader), sizeof(Engine::Formats::RiffWave::RiffWaveHeader));
+                    TempFile.close();
+                }
             }
         }
     }

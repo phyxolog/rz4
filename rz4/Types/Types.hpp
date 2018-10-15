@@ -28,6 +28,7 @@ namespace rz4 {
     namespace Types {
         namespace fs = boost::filesystem;
 
+        enum { TakCompressor = 0x1, WavPackCompressor };
         enum { RiffWave = 0 };
         extern const char* StreamTypes[];
         extern const char* StreamExts[];
@@ -38,6 +39,7 @@ namespace rz4 {
             std::string ShortType;
             uintmax_t Size;
             uintmax_t Offset;
+            unsigned short Type;
             void *Data;
         } StreamInfo;
 
@@ -49,6 +51,8 @@ namespace rz4 {
             unsigned int BufferSize;
             bool Verbose;
             bool EnableRiffWave;
+            unsigned short WavPackCompLevel;
+            unsigned short TakCompLevel;
         } CLIOptions;
 
         typedef struct ScannerOptions {
@@ -65,6 +69,8 @@ namespace rz4 {
             unsigned int BufferSize;
             std::list<StreamInfo> *ListOfStreams;
             bool EnableRiffWave;
+            unsigned short WavPackCompLevel;
+            unsigned short TakCompLevel;
         } CompressorOptions;
  
         const char RzfHeaderSignature[4] = { 'R', 'Z', '4', 'F' };
@@ -83,8 +89,8 @@ namespace rz4 {
 
 #pragma pack(push, 1)
         typedef struct RzfCompressedStream {
-            unsigned char Type;
-            unsigned char Compressor;
+            unsigned short Type;
+            unsigned short Compressor;
             uintmax_t NextCompressedStreamOffset;
             uintmax_t CompressedSize;
             uintmax_t OriginalOffset;            

@@ -28,6 +28,7 @@
 #include <boost/process.hpp>
 #include <boost/process/windows.hpp>
 
+#include "Engine/Formats/RiffWave.hpp"
 #include "Types/Types.hpp"
 #include "Utils/Utils.hpp"
 
@@ -49,7 +50,8 @@ namespace rz4 {
             ~Compressor();
 
             void CompressStream(Types::StreamInfo&, Types::RzfCompressedStream&, std::ifstream&, fs::path&);
-            bool WavpackCompress(fs::path, fs::path);
+            bool WavpackCompress(fs::path, fs::path, unsigned short);
+            bool TakCompress(fs::path, fs::path, unsigned short);
 
             void Start();
             void Close();

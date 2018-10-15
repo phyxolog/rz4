@@ -20,7 +20,9 @@
 #ifndef RZ4M_RIFFWAVE_FORMAT_H
 #define RZ4M_RIFFWAVE_FORMAT_H
 
+#include <string>
 #include <cstring>
+#include <fstream>
 
 namespace rz4 {
     namespace Engine {
@@ -45,6 +47,8 @@ namespace rz4 {
 #pragma pack(pop)
 
                 bool IsRiffWaveHeader(const char *);
+                void FixRiffWaveHeader(RiffWaveHeader*);
+                void FixRiffWaveHeaderInFile(std::string, RiffWaveHeader*);
             }
         }
     }
